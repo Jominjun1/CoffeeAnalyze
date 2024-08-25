@@ -4,9 +4,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
-@RequestMapping("/user")
+@RequestMapping("coffee")
 @Controller
-public class UserController {
+@RestController
+public class CoffeeMenuController {
 
 }
