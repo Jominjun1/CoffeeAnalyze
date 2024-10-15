@@ -4,9 +4,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping("/user")
+@RequestMapping("/admin")
 @RestController
 @Controller
-public class UserController {
-
+public class AdminController {
 }
