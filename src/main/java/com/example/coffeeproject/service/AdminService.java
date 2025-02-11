@@ -30,7 +30,7 @@ public class AdminService {
     }
     private boolean isUserIdAvailable(Object admin) {
         if (admin instanceof Admin) {
-            return !adminRepository.existsById(((Admin) admin).getAdmin_id());
+            return !adminRepository.existsById(((Admin) admin).getAdmin_ID());
         } else {
             throw new IllegalArgumentException("잘못된 사용자 유형");
         }

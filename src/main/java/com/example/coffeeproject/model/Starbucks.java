@@ -11,13 +11,13 @@ import lombok.*;
 @Setter
 @Entity
 @Table(name="StarBucks")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "StarBucks_id")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "Starbucks_ID")
 public class Starbucks {
 
     @Id
-    @Column(name="StarBucks_id")
+    @Column(name="Starbucks_ID")
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private int StarBucks_id;
+    private int Starbucks_ID;
 
     private int Ounce; // 중량 1oz=29.5ml
     private int Price; // 가격
