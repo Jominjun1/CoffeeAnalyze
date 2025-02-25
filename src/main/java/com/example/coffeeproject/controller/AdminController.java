@@ -1,11 +1,12 @@
 package com.example.coffeeproject.controller;
 
+import com.example.coffeeproject.model.Admin;
 import com.example.coffeeproject.service.AdminService;
 import com.example.coffeeproject.service.CoffeeService;
 import com.example.coffeeproject.service.UserService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequestMapping("/admin")
 @RestController
@@ -19,5 +20,11 @@ public class AdminController {
         this.adminService = adminService;
         this.coffeeService = coffeeService;
         this.userService = userService;
+    }
+    
+    // 관리자 회원 가입 API
+    @PostMapping("/signup")
+    public ResponseEntity<String> signup(@RequestBody Admin admin){
+        return AdminService.signup(admin);
     }
 }

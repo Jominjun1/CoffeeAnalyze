@@ -9,14 +9,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AdminService {
-    private final AdminRepository adminRepository;
+    private static AdminRepository adminRepository = null;
 
     @Autowired
     public AdminService(AdminRepository adminRepository) {
-        this.adminRepository = adminRepository;
+        AdminService.adminRepository = adminRepository;
     }
 
-    public ResponseEntity<String> signup(Object admin){
+    public static ResponseEntity<String> signup(Object admin){
         if(isUserIdAvailable(admin)){
             saveUser(admin);
             return ResponseEntity.ok("회원가입 성공");
@@ -25,10 +25,10 @@ public class AdminService {
         }
     }
 
-    public void saveUser(Object admin) {
+    public static void saveUser(Object admin) {
         adminRepository.save((Admin)admin);
     }
-    private boolean isUserIdAvailable(Object admin) {
+    private static boolean isUserIdAvailable(Object admin) {
         if (admin instanceof Admin) {
             return !adminRepository.existsById(((Admin) admin).getAdmin_ID());
         } else {
