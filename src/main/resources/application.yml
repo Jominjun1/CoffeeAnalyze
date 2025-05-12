@@ -1,12 +1,20 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/coffee_db
+    url: jdbc:mysql://127.0.0.1:3306/test12
     username: root
-    password: admin123
+    password: mmin0307
   jpa:
     database: mysql
     generate-ddl: true
     show-sql: true
     hibernate:
       ddl-auto: update
+  upload:
+    photo:
+      images: src/main/resources/static/images
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
