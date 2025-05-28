@@ -23,10 +23,35 @@ public class MegaCoffee {
     private String Name; // 이름
     private String Eng_name; // 영어 이름
     private String Note; // 비고
+    private String imageUrl; // 이미지 url
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "in_code")
     @JsonBackReference
     private Ingredient ingredients;
 
+    @Getter
+    @Setter
+    @Entity
+    @Table(name="ComposeCoffee")
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "Compose_ID")
+    public static class ComposeCoffee {
+
+        @Id
+        @Column(name="Compose_ID")
+        @GeneratedValue(strategy = GenerationType.SEQUENCE)
+        private int Compose_ID;
+
+        private int Ounce; // 중량 1oz=29.5ml
+        private int Price; // 가격
+        private String Name; // 이름
+        private String Eng_name; // 영어 이름
+        private String Note; // 비고
+
+        @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+        @JoinColumn(name = "in_code")
+        @JsonBackReference
+        private Ingredient ingredients;
+
+    }
 }

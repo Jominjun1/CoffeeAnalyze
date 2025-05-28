@@ -1,9 +1,9 @@
 package com.example.coffeeproject.respoitory;
 
-import com.example.coffeeproject.model.ATwosomePlace;
+import com.example.coffeeproject.model.Ingredient;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface Ingredient extends JpaRepository<Ingredient, Integer> {
+public interface IngredientRepository extends JpaRepository<Ingredient, Integer> {
 }

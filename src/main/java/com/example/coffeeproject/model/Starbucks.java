@@ -24,6 +24,7 @@ public class Starbucks {
     private String Name; // 이름
     private String Eng_name; // 영어 이름
     private String Note; // 비고
+    private String imageUrl; // 이미지 url
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "in_code")
