@@ -23,10 +23,12 @@ public class CoffeeService {
     private final MegaRepository megaRepository;
     private final PaiksRepository paiksRepository;
     private final StarbucksRepository starbucksRepository;
+    private final WebDriver driver;
 
     @Autowired
-    public CoffeeService(ATwosomePlaceRepository atwosomePlaceRepository, ComposeRepository composeRepository, EDIYARepository ediyaRepository,
-                         IngredientRepository ingredientRepository, MegaRepository megaRepository, PaiksRepository paiksRepository, StarbucksRepository starbucksRepository) {
+    public CoffeeService(ATwosomePlaceRepository atwosomePlaceRepository, ComposeRepository composeRepository,
+                         EDIYARepository ediyaRepository, IngredientRepository ingredientRepository, MegaRepository megaRepository,
+                         PaiksRepository paiksRepository, StarbucksRepository starbucksRepository , WebDriver driver) {
         this.atwosomePlaceRepository = atwosomePlaceRepository;
         this.composeRepository = composeRepository;
         this.ediyaRepository = ediyaRepository;
@@ -34,14 +36,12 @@ public class CoffeeService {
         this.megaRepository = megaRepository;
         this.paiksRepository = paiksRepository;
         this.starbucksRepository = starbucksRepository;
+        this.driver = driver;
     }
 
 
     // 빽다방 크롤링
     public void crawlPaiksCoffee() throws InterruptedException {
-        System.setProperty("webdriver.chrome.driver" , "src/main/resources/chromedriver.exe");
-        WebDriver driver = new ChromeDriver();
-
         Map<String , String> categoryMap = Map.of(
                 "커피" , "https://paikdabang.com/menu/menu_coffee/",
                 "음료" , "https://paikdabang.com/menu/menu_drink/",
@@ -86,23 +86,17 @@ public class CoffeeService {
                             double value = valueStr.isEmpty() ? 0 : Double.parseDouble(valueStr);
                             switch (label) {
                                 case "칼로리":
-                                    kcal = value;
-                                    break;
+                                    kcal = value; break;
                                 case "카페인":
-                                    caffeine = value;
-                                    break;
+                                    caffeine = value; break;
                                 case "나트륨":
-                                    sodium = value;
-                                    break;
+                                    sodium = value; break;
                                 case "당류":
-                                    sugar = value;
-                                    break;
+                                    sugar = value; break;
                                 case "포화지방":
-                                    saturatedFat = value;
-                                    break;
+                                    saturatedFat = value; break;
                                 case "단백질":
-                                    protein = value;
-                                    break;
+                                    protein = value; break;
                             }
                         }
                     } catch (NoSuchElementException e) {
