@@ -179,14 +179,37 @@ public class CoffeeService {
 
                 while (true) {
                     List<WebElement> items = webDriver.findElements(By.cssSelector("ul#menu_list > li"));
-                    List<WebElement> pageLinks = webDriver.findElements(By.cssSelector("ul#board_page > li > a.board_page_link"));
-                    currentPage++;
+                    System.out.println(category + " - " + currentPage + "페이지: " + items.size() + "개");
 
-                    if (currentPage <= pageLinks.size()){
-                        WebElement nextPageLink = pageLinks.get(currentPage - 1); // 0-based index
+                    for (WebElement item : items) {
+                        try {
+                            Actions actions = new Actions(webDriver);
+                            actions.moveToElement(item).perform();
+                            WebElement innerDiv = item.findElement(By.cssSelector("div.inner_modal"));
+                            JavascriptExecutor js = (JavascriptExecutor) webDriver;
+                            js.executeScript("arguments[0].style.display='block';", innerDiv);
+
+                            WebElement modal = webDriver.findElement(By.cssSelector("div.inner_modal"));
+                            String name = innerDiv.findElement(By.cssSelector("b")).getText();
+
+                            System.out.println("이름: " + name);
+
+                            WebElement closeBtn = modal.findElement(By.cssSelector("button.close"));
+                            ((JavascriptExecutor) webDriver).executeScript("arguments[0].click();", closeBtn);
+                            wait.until(ExpectedConditions.invisibilityOf(modal));
+                            Thread.sleep(500);
+
+                        } catch (Exception e) {
+                            System.out.println("모달 크롤링 실패: " + e.getMessage());
+                        }
+                    }
+                    List<WebElement> pageLinks = webDriver.findElements(By.cssSelector("ul#board_page > li > a.board_page_link"));
+                    if (currentPage < pageLinks.size()) {
+                        WebElement nextPageLink = pageLinks.get(currentPage); // 0-based index
                         ((JavascriptExecutor) webDriver).executeScript("arguments[0].click();", nextPageLink);
                         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("ul#menu_list > li")));
                         Thread.sleep(1000);
+                        currentPage++;
                     } else {
                         break;
                     }
