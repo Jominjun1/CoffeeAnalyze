@@ -4,10 +4,9 @@ import com.example.coffeeproject.Utill.WebDriverConfig;
 import com.example.coffeeproject.model.Ingredient;
 import com.example.coffeeproject.model.PaiksCoffee;
 import com.example.coffeeproject.respoitory.*;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +48,6 @@ public class CoffeeService {
 
                 webDriver.get(url);
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("div.menu_list.clear > ul > li")));
-
                 List<WebElement> menuItems = webDriver.findElements(By.cssSelector("div.menu_list.clear > ul > li"));
                 System.out.println("크롤링한 메뉴 개수: " + menuItems.size());
 
@@ -60,21 +58,19 @@ public class CoffeeService {
                         Thread.sleep(300);
                         WebElement hover = item.findElement(By.cssSelector("div.hover"));
 
+                        JavascriptExecutor js = (JavascriptExecutor) webDriver;
+                        js.executeScript("arguments[0].style.display='block';", hover);
+
                         String name = item.findElement(By.cssSelector("p.menu_tit")).getText();
                         String engName = hover.findElement(By.cssSelector("div.menu_tit2.color-1")).getText();
-                        System.out.println("메뉴 영어 이름: " + engName);
                         String note = hover.findElement(By.cssSelector("p.txt")).getText();
-                        System.out.println("설명: " + note);
                         String imageUrl = item.findElement(By.cssSelector("div.thumb img")).getAttribute("src");
-                        System.out.println("이미지 링크: " + imageUrl);
                         String allergic;
                         try {
                             allergic = hover.findElement(By.cssSelector("div.ingredient_table_box")).getText();
                         } catch (NoSuchElementException e) {
                             allergic = "알레르기 정보 없음";
                         }
-                        System.out.println("알레르기: " + allergic);
-
                         double kcal = 0, caffeine = 0, sodium = 0, sugar = 0, saturatedFat = 0, protein = 0;
                         try {
                             WebElement table = hover.findElement(By.cssSelector("div.ingredient_table"));
@@ -128,10 +124,6 @@ public class CoffeeService {
                                 paiksCoffee.setNote("[" + category + "] " + note);
                                 paiksCoffee.setImageUrl(imageUrl);
                                 paiksRepository.save(paiksCoffee);
-
-                                System.out.println("업데이트: " + name);
-                            } else {
-                                System.out.println("이미 최신 상태: " + name);
                             }
                         } else {
                             Ingredient ingredient = new Ingredient();
@@ -153,8 +145,6 @@ public class CoffeeService {
                             paiksCoffee.setOunce(0);
                             paiksCoffee.setIngredients(ingredient);
                             paiksRepository.save(paiksCoffee);
-
-                            System.out.println("신규 등록: " + name);
                         }
 
                     } catch (Exception e) {
@@ -166,6 +156,45 @@ public class CoffeeService {
             }
         } finally {
             webDriver.quit();
+        }
+    }
+
+    public void crawlMegaCoffee() {
+        WebDriver webDriver = webDriverConfig.create();
+        WebDriverWait wait = new WebDriverWait(webDriver , Duration.ofSeconds(15));
+        Map<String , String> categoryMap = Map.of(
+                "음료" , "https://www.mega-mgccoffee.com/menu/?menu_category1=1&menu_category2=1/",
+                "푸드" , "https://www.mega-mgccoffee.com/menu/?menu_category1=1&menu_category2=2/",
+                "상품" , "https://www.mega-mgccoffee.com/menu/?menu_category1=3&menu_category2=3/"
+        );
+
+        try{
+            for(Map.Entry<String , String> entry : categoryMap.entrySet()){
+                String category = entry.getKey();
+                String url = entry.getValue();
+
+                webDriver.get(url);
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("ul#menu_list > li")));
+                int currentPage = 1;
+
+                while (true) {
+                    List<WebElement> items = webDriver.findElements(By.cssSelector("ul#menu_list > li"));
+                    List<WebElement> pageLinks = webDriver.findElements(By.cssSelector("ul#board_page > li > a.board_page_link"));
+                    currentPage++;
+
+                    if (currentPage <= pageLinks.size()){
+                        WebElement nextPageLink = pageLinks.get(currentPage - 1); // 0-based index
+                        ((JavascriptExecutor) webDriver).executeScript("arguments[0].click();", nextPageLink);
+                        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("ul#menu_list > li")));
+                        Thread.sleep(1000);
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("크롤링 실패: " + e.getMessage());
         }
     }
 }

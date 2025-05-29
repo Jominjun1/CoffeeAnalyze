@@ -34,12 +34,18 @@ public class CrawController {
             coffeeService.crawlPaiksCoffee();
             return ResponseEntity.ok("성공");
         } catch(Exception e){
-            e.printStackTrace();
             return ResponseEntity.internalServerError().body("오류 :" + e.getMessage());
         }
     }
-    @GetMapping("/paiksAll")
-    public List<PaiksCoffee> getAllPaiks(){
-        return paiksRepository.findAll();
+    @GetMapping("/mega_coffee")
+    public ResponseEntity<String> crawMegaCoffee(){
+        try{
+
+            coffeeService.crawlMegaCoffee();
+            return ResponseEntity.ok("성공>");
+        } catch (Exception e){
+            return ResponseEntity.internalServerError().body("오류 :" + e.getMessage());
+        }
     }
+
 }

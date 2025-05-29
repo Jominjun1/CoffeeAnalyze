@@ -1,8 +1,6 @@
 package com.example.coffeeproject.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,11 +8,11 @@ import lombok.*;
 @Setter
 @Entity
 @Table(name="Paiks_Coffee")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "Paiks_ID")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "paiks_id")
 public class PaiksCoffee {
 
     @Id
-    @Column(name="Paiks_ID")
+    @Column(name="paiks_id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int paiks_id;
 
@@ -25,9 +23,8 @@ public class PaiksCoffee {
     private String note; // 비고
     private String imageUrl; // 이미지 url
 
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    @JoinColumn(name = "in_code")
-    @JsonBackReference
+    @OneToOne(cascade = CascadeType.ALL)
+    @JsonManagedReference
     private Ingredient ingredients;
 
 }

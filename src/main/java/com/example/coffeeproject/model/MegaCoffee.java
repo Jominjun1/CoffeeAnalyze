@@ -10,11 +10,11 @@ import lombok.*;
 @Setter
 @Entity
 @Table(name="MEGE_COFFEE")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "Mega_ID")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "mega_id")
 public class MegaCoffee {
 
     @Id
-    @Column(name="Mega_ID")
+    @Column(name="mega_id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int mega_id;
 

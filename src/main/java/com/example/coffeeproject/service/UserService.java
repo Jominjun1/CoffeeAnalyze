@@ -30,7 +30,7 @@ public class UserService {
     }
     private boolean isUserIdAvailable(Object user) {
         if (user instanceof User) {
-            return !userRepository.existsById(((User) user).getUser_ID());
+            return !userRepository.existsById(((User) user).getUser_id());
         } else {
             throw new IllegalArgumentException("잘못된 사용자 유형");
         }

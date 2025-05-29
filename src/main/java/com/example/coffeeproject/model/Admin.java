@@ -13,11 +13,11 @@ import lombok.*;
 @Setter
 @Entity
 @Table(name="admin")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "Admin_ID")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "admin_id")
 public class Admin {
 
     @Id
-    @Column(name="admin_ID")
+    @Column(name="admin_id")
     @Pattern(regexp = "[a-zA-Z0-9]{4,9}") // 영어 + 숫자조합 4자리 ~ 9자리
     private String admin_id; // 아이디
 

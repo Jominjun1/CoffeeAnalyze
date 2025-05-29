@@ -1,7 +1,6 @@
 package com.example.coffeeproject.model;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,5 +23,9 @@ public class Ingredient {
     private double caffeine; // 카페인
     private double sugar; // 당류
     private String allergic_ingredients; // 알레르기 성분
+
+    @OneToOne(mappedBy = "ingredients")
+    @JsonBackReference
+    private PaiksCoffee paiksCoffee;
 
 }

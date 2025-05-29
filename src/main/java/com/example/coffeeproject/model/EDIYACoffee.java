@@ -11,11 +11,11 @@ import lombok.*;
 @Setter
 @Entity
 @Table(name="EDIYA_Coffee")
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "Ediya_ID")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "ediya_id")
 public class EDIYACoffee {
 
     @Id
-    @Column(name="Ediya_ID")
+    @Column(name="ediya_id")
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int ediya_id;
 
