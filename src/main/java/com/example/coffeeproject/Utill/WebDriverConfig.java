@@ -2,19 +2,14 @@ package com.example.coffeeproject.Utill;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.io.File;
 
 @Configuration
 public class WebDriverConfig {
-
-    @Value("${webdriver.chrome.path}")
-    private String chromeDriverPath;
-
-    @Bean
-    public WebDriver webDriver(){
-        System.setProperty("webdriver.chrome.driver", chromeDriverPath);
+    public WebDriver create() {
+        System.setProperty("webdriver.chrome.driver", new File("src/main/resources/chromedriver-win32/chromedriver.exe").getAbsolutePath());
         return new ChromeDriver();
     }
 }

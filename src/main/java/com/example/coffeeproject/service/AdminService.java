@@ -9,14 +9,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AdminService {
-    private static AdminRepository adminRepository = null;
+    private final AdminRepository adminRepository;
 
     @Autowired
     public AdminService(AdminRepository adminRepository) {
-        AdminService.adminRepository = adminRepository;
+        this.adminRepository = adminRepository;
     }
 
-    public static ResponseEntity<String> signup(Object admin){
+    public ResponseEntity<String> signup(Object admin){
         if(isUserIdAvailable(admin)){
             saveUser(admin);
             return ResponseEntity.ok("회원가입 성공");
@@ -25,12 +25,12 @@ public class AdminService {
         }
     }
 
-    public static void saveUser(Object admin) {
+    public void saveUser(Object admin) {
         adminRepository.save((Admin)admin);
     }
-    private static boolean isUserIdAvailable(Object admin) {
+    private boolean isUserIdAvailable(Object admin) {
         if (admin instanceof Admin) {
-            return !adminRepository.existsById(((Admin) admin).getAdmin_ID());
+            return !adminRepository.existsById(((Admin) admin).getAdmin_id());
         } else {
             throw new IllegalArgumentException("잘못된 사용자 유형");
         }

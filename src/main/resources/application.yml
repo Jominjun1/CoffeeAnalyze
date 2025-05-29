@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/test12
+    url: jdbc:mysql://127.0.0.1:3306/coffee
     username: root
     password: mmin0307
   jpa:
@@ -18,6 +18,3 @@ spring:
       enabled: true
       max-file-size: 10MB
       max-request-size: 10MB
-  webdriver:
-    chrome:
-      path: src/main/resources/chromedriver-win32/chromedriver.exe

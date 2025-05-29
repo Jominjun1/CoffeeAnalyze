@@ -17,12 +17,12 @@ public class Ingredient {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long in_code;
 
-    private double Kcal; // 칼로리
-    private double Saturated_fat; // 포화지방
+    private double kcal; // 칼로리
+    private double saturated_fat; // 포화지방
     private double sodium; // 나트륨
-    private double Protein; // 단백질
-    private double Caffeine; // 카페인
-    private double Sugar; // 당류
-    private String Allergic_ingredients; // 알레르기 성분
+    private double protein; // 단백질
+    private double caffeine; // 카페인
+    private double sugar; // 당류
+    private String allergic_ingredients; // 알레르기 성분
 
 }

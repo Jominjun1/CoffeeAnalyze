@@ -9,9 +9,5 @@ import org.springframework.web.bind.annotation.RestController;
 @Controller
 @RestController
 public class CoffeeMenuController {
-    private final CoffeeService coffeeService;
 
-    public CoffeeMenuController(CoffeeService coffeeService) {
-        this.coffeeService = coffeeService;
-    }
 }

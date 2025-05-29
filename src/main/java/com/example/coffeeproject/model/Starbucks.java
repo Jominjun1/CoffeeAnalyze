@@ -17,13 +17,13 @@ public class Starbucks {
     @Id
     @Column(name="Starbucks_ID")
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private int Starbucks_ID;
+    private int starbucks_ID;
 
-    private int Ounce; // 중량 1oz=29.5ml
-    private int Price; // 가격
-    private String Name; // 이름
-    private String Eng_name; // 영어 이름
-    private String Note; // 비고
+    private int ounce; // 중량 1oz=29.5ml
+    private int price; // 가격
+    private String name; // 이름
+    private String eng_name; // 영어 이름
+    private String note; // 비고
     private String imageUrl; // 이미지 url
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
