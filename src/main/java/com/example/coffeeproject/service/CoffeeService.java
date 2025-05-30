@@ -4,7 +4,9 @@ import com.example.coffeeproject.Utill.WebDriverConfig;
 import com.example.coffeeproject.model.Ingredient;
 import com.example.coffeeproject.model.MegaCoffee;
 import com.example.coffeeproject.model.PaiksCoffee;
-import com.example.coffeeproject.respoitory.*;
+import com.example.coffeeproject.respoitory.IngredientRepository;
+import com.example.coffeeproject.respoitory.MegaRepository;
+import com.example.coffeeproject.respoitory.PaiksRepository;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.interactions.Actions;
@@ -14,8 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.regex.*;
 
 @Service
 public class CoffeeService {
@@ -26,16 +27,15 @@ public class CoffeeService {
     private final WebDriverConfig webDriverConfig;
 
     @Autowired
-    public CoffeeService(
-            IngredientRepository ingredientRepository,
-            PaiksRepository paiksRepository, MegaRepository megaRepository, WebDriverConfig webDriverConfig) {
+    public CoffeeService(IngredientRepository ingredientRepository, PaiksRepository paiksRepository,
+                         MegaRepository megaRepository, WebDriverConfig webDriverConfig){
         this.ingredientRepository = ingredientRepository;
         this.paiksRepository = paiksRepository;
         this.megaRepository = megaRepository;
         this.webDriverConfig = webDriverConfig;
     }
 
-    public void crawlPaiksCoffee() {
+    public void crawlPaiksCoffee(){
         WebDriver webDriver = webDriverConfig.create();
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(10));
         Map<String, String> categoryMap = Map.of(
@@ -45,8 +45,8 @@ public class CoffeeService {
                 "빽스치노", "https://paikdabang.com/menu/menu_ccino/"
         );
 
-        try {
-            for (Map.Entry<String, String> entry : categoryMap.entrySet()) {
+        try{
+            for(Map.Entry<String, String> entry : categoryMap.entrySet()){
                 String category = entry.getKey();
                 String url = entry.getValue();
 
@@ -55,8 +55,8 @@ public class CoffeeService {
                 List<WebElement> menuItems = webDriver.findElements(By.cssSelector("div.menu_list.clear > ul > li"));
                 System.out.println("크롤링한 메뉴 개수: " + menuItems.size());
 
-                for (WebElement item : menuItems){
-                    try {
+                for(WebElement item : menuItems){
+                    try{
                         Actions actions = new Actions(webDriver);
                         actions.moveToElement(item).perform();
                         Thread.sleep(300);
@@ -71,15 +71,15 @@ public class CoffeeService {
                         String imageUrl = item.findElement(By.cssSelector("div.thumb img")).getAttribute("src");
                         double ounce =0;
                         String allergic = "알레르기 정보 없음";
-                        try {
+                        try{
                             WebElement baseInfo = hover.findElement(By.cssSelector("p.menu_ingredient_basis"));
                             String text = baseInfo.getText();
                             Pattern pattern = Pattern.compile("(\\d+(\\.\\d+)?)\\s*(oz|ml)");
                             Matcher matcher = pattern.matcher(text);
-                            if (matcher.find()) {
+                            if(matcher.find()){
                                 double value = Double.parseDouble(matcher.group(1));
                                 String unit = matcher.group(3).toLowerCase();
-                                ounce = switch (unit) {
+                                ounce = switch (unit){
                                     case "oz" -> Math.round(value * 29.5 * 10) / 10.0;
                                     case "ml" -> Math.round(value * 10) / 10.0;
                                     case "g" -> value;
@@ -92,33 +92,33 @@ public class CoffeeService {
                                     .filter(line -> line.contains("알레르기"))
                                     .findFirst()
                                     .orElse("알레르기 정보 없음");
-                        } catch (NoSuchElementException e) {
+                        }catch(NoSuchElementException e){
                             System.out.println("정보 없음");
                         }
                         double kcal = 0, caffeine = 0, sodium = 0, sugar = 0, saturatedFat = 0, protein = 0;
                         try{
                             List<WebElement> rows = hover.findElements(By.cssSelector("ul.ingredient_table > li"));
-                            for (WebElement row : rows) {
+                            for(WebElement row : rows){
                                 String text = row.getText().trim();
-                                if (text.startsWith("칼로리")) {
+                                if(text.startsWith("칼로리")){
                                     kcal = extractNumber(text);
-                                } else if (text.startsWith("카페인")) {
+                                }else if(text.startsWith("카페인")){
                                     caffeine = extractNumber(text);
-                                } else if (text.startsWith("나트륨")) {
+                                }else if(text.startsWith("나트륨")){
                                     sodium = extractNumber(text);
-                                } else if (text.startsWith("당류")) {
+                                }else if(text.startsWith("당류")){
                                     sugar = extractNumber(text);
-                                } else if (text.startsWith("포화지방")) {
+                                }else if(text.startsWith("포화지방")){
                                     saturatedFat = extractNumber(text);
-                                } else if (text.startsWith("단백질")) {
+                                }else if(text.startsWith("단백질")){
                                     protein = extractNumber(text);
                                 }
                             }
-                        } catch (NoSuchElementException e) {
+                        }catch(NoSuchElementException e){
                             System.out.println("영양정보 없음: " + name);
                         }
                         Optional<PaiksCoffee> optPaiks = paiksRepository.findByName(name);
-                        if (optPaiks.isPresent()) {
+                        if(optPaiks.isPresent()){
                             PaiksCoffee paiksCoffee = optPaiks.get();
                             Ingredient ingredient = paiksCoffee.getIngredients();
 
@@ -131,7 +131,7 @@ public class CoffeeService {
                                             Math.abs(ingredient.getProtein() - protein) > 0.001 ||
                                             !Objects.equals(ingredient.getAllergic_ingredients(), allergic);
 
-                            if (isDifferent) {
+                            if(isDifferent){
                                 ingredient.setKcal(kcal);
                                 ingredient.setCaffeine(caffeine);
                                 ingredient.setSodium(sodium);
@@ -146,7 +146,7 @@ public class CoffeeService {
                                 paiksCoffee.setOunce(ounce);
                                 paiksRepository.save(paiksCoffee);
                             }
-                        } else {
+                        }else{
                             Ingredient ingredient = new Ingredient();
                             ingredient.setKcal(kcal);
                             ingredient.setCaffeine(caffeine);
@@ -167,13 +167,13 @@ public class CoffeeService {
                             paiksCoffee.setIngredients(ingredient);
                             paiksRepository.save(paiksCoffee);
                         }
-                    } catch (Exception e) {
+                    }catch (Exception e){
                         System.out.println("크롤링 실패: " + e.getMessage());
                         break;
                     }
                 }
             }
-        } finally {
+        }finally{
             webDriver.quit();
         }
     }
@@ -185,7 +185,6 @@ public class CoffeeService {
                 "음료" , "https://www.mega-mgccoffee.com/menu/?menu_category1=1&menu_category2=1/",
                 "푸드" , "https://www.mega-mgccoffee.com/menu/?menu_category1=1&menu_category2=2/"
         );
-
         try{
             for(Map.Entry<String , String> entry : categoryMap.entrySet()){
                 String category = entry.getKey();
@@ -195,10 +194,10 @@ public class CoffeeService {
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("ul#menu_list > li")));
                 int currentPage = 1;
 
-                while (true) {
+                while(true){
                     List<WebElement> items = webDriver.findElements(By.cssSelector("ul#menu_list > li"));
-                    for (WebElement item : items) {
-                        try {
+                    for(WebElement item : items){
+                        try{
                             Actions actions = new Actions(webDriver);
                             actions.moveToElement(item).perform();
                             WebElement innerDiv = item.findElement(By.cssSelector("div.inner_modal"));
@@ -238,25 +237,25 @@ public class CoffeeService {
                                 WebElement elementList = innerDiv.findElement(By.cssSelector("div.cont_list ul"));
                                 List<WebElement> rows = elementList.findElements(By.tagName("li"));
 
-                                for (WebElement row : rows) {
+                                for(WebElement row : rows){
                                     String text = row.getText().trim();
-                                    if (text.startsWith("카페인")) {
+                                    if(text.startsWith("카페인")){
                                         caffeine = extractNumber(text);
-                                    } else if (text.startsWith("나트륨")) {
+                                    }else if (text.startsWith("나트륨")){
                                         sodium = extractNumber(text);
-                                    } else if (text.startsWith("당류")) {
+                                    }else if (text.startsWith("당류")){
                                         sugar = extractNumber(text);
-                                    } else if (text.startsWith("포화지방")) {
+                                    }else if (text.startsWith("포화지방")){
                                         saturatedFat = extractNumber(text);
-                                    } else if (text.startsWith("단백질")) {
+                                    }else if (text.startsWith("단백질")){
                                         protein = extractNumber(text);
                                     }
                                 }
-                            }catch (NoSuchElementException e) {
+                            }catch(NoSuchElementException e){
                                     System.out.println("영양정보 없음");
                             }
                             Optional<MegaCoffee> optMega = megaRepository.findByName(name);
-                            if(optMega.isPresent()) {
+                            if(optMega.isPresent()){
                                 MegaCoffee megaCoffee = optMega.get();
                                 Ingredient ingredient = megaCoffee.getIngredients();
 
@@ -268,7 +267,7 @@ public class CoffeeService {
                                                 Math.abs(ingredient.getSaturated_fat() - saturatedFat) > 0.001 ||
                                                 Math.abs(ingredient.getProtein() - protein) > 0.001 ||
                                                 !Objects.equals(ingredient.getAllergic_ingredients(), allergic);
-                                if (isDifferent) {
+                                if(isDifferent){
                                     ingredient.setKcal(kcal);
                                     ingredient.setCaffeine(caffeine);
                                     ingredient.setSodium(sodium);
@@ -283,7 +282,7 @@ public class CoffeeService {
                                     megaCoffee.setImageUrl(imageUrl);
                                     megaRepository.save(megaCoffee);
                                 }
-                            }else {
+                            }else{
                                 Ingredient ingredient = new Ingredient();
                                 ingredient.setKcal(kcal);
                                 ingredient.setCaffeine(caffeine);
@@ -305,22 +304,22 @@ public class CoffeeService {
                                 megaCoffee.setIngredients(ingredient);
                                 megaRepository.save(megaCoffee);
                             }
-                        } catch (Exception e) {
+                        }catch (Exception e){
                             System.out.println("모달 크롤링 실패: " + e.getMessage());
                         }
                     }
                     List<WebElement> pageLinks = webDriver.findElements(By.cssSelector("ul#board_page > li > a.board_page_link"));
-                    if (currentPage < pageLinks.size()) {
+                    if(currentPage < pageLinks.size()){
                         WebElement nextPageLink = pageLinks.get(currentPage); // 0-based index
                         ((JavascriptExecutor) webDriver).executeScript("arguments[0].click();", nextPageLink);
                         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("ul#menu_list > li")));
                         currentPage++;
-                    } else {
+                    }else{
                         break;
                     }
                 }
             }
-        }catch (Exception e) {
+        }catch (Exception e){
             System.out.println("크롤링 실패: " + e.getMessage());
         }
     }
@@ -341,28 +340,28 @@ public class CoffeeService {
                 List<WebElement> menuItems = webDriver.findElements(By.cssSelector("li.menuDataSet"));
                 System.out.println("Found li.menuDataSet count: " + menuItems.size());
 
-                for (WebElement item : menuItems) {
+                for(WebElement item : menuItems){
                     WebElement link = item.findElement(By.cssSelector("a.goDrinkVew"));
                     String productCd = link.getAttribute("prod");
 
                     String detailUrl;
-                    if (category.equals("음료")) {
+                    if(category.equals("음료")){
                         detailUrl = "https://www.starbucks.co.kr/menu/drink_view.do?product_cd=" + productCd;
-                    } else if (category.equals("푸드")) {
+                    }else if (category.equals("푸드")){
                         detailUrl = "https://www.starbucks.co.kr/menu/food_view.do?product_cd=" + productCd;
-                    } else {
+                    }else{
                         continue;
                     }
                     System.out.println("상세 페이지 URL: " + detailUrl);
                 }
             }
-        } catch (Exception e) {
+        }catch(Exception e){
             System.out.println("오류: " + e.getMessage());
         }
     }
-    private double extractNumber(String text) {
+    private double extractNumber(String text){
         String numStr = text.replaceAll("[^0-9.]", "");
-        if (!numStr.isEmpty()) {
+        if(!numStr.isEmpty()){
             return Double.parseDouble(numStr);
         }
         return 0.0;

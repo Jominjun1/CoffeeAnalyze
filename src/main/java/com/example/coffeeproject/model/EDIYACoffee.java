@@ -1,11 +1,8 @@
 package com.example.coffeeproject.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.*;
-
 
 @Getter
 @Setter
@@ -25,7 +22,6 @@ public class EDIYACoffee {
     private String eng_name; // 영어 이름
     private String note; // 비고
     private String imageUrl; // 이미지 url
-
 
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "in_code")
