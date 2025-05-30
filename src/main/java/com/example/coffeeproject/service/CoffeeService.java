@@ -74,7 +74,6 @@ public class CoffeeService {
                         try {
                             WebElement baseInfo = hover.findElement(By.cssSelector("p.menu_ingredient_basis"));
                             String text = baseInfo.getText();
-                            System.out.println("기준 정보 : " + text);
                             Pattern pattern = Pattern.compile("(\\d+(\\.\\d+)?)\\s*(oz|ml)");
                             Matcher matcher = pattern.matcher(text);
                             if (matcher.find()) {
@@ -118,10 +117,6 @@ public class CoffeeService {
                         } catch (NoSuchElementException e) {
                             System.out.println("영양정보 없음: " + name);
                         }
-                        System.out.printf(
-                                "용량 : %.1fml, 칼로리 : %.1fkcal, 카페인 : %.1fmg, 나트륨 : %.1fmg, 당류 : %.1fg, 포화지방 : %.1fg, 단백질 : %.1fg%n",
-                                ounce, kcal, caffeine, sodium, sugar, saturatedFat, protein
-                        );
                         Optional<PaiksCoffee> optPaiks = paiksRepository.findByName(name);
                         if (optPaiks.isPresent()) {
                             PaiksCoffee paiksCoffee = optPaiks.get();
@@ -202,8 +197,6 @@ public class CoffeeService {
 
                 while (true) {
                     List<WebElement> items = webDriver.findElements(By.cssSelector("ul#menu_list > li"));
-                    System.out.println(category + " - " + currentPage + "페이지: " + items.size() + "개");
-
                     for (WebElement item : items) {
                         try {
                             Actions actions = new Actions(webDriver);
@@ -262,10 +255,6 @@ public class CoffeeService {
                             }catch (NoSuchElementException e) {
                                     System.out.println("영양정보 없음");
                             }
-                            System.out.printf(
-                                    "용량 : %.1fml, 칼로리 : %.1fkcal, 카페인 : %.1fmg, 나트륨 : %.1fmg, 당류 : %.1fg, 포화지방 : %.1fg, 단백질 : %.1fg%n",
-                                    ounce, kcal, caffeine, sodium, sugar, saturatedFat, protein
-                            );
                             Optional<MegaCoffee> optMega = megaRepository.findByName(name);
                             if(optMega.isPresent()) {
                                 MegaCoffee megaCoffee = optMega.get();
@@ -333,6 +322,42 @@ public class CoffeeService {
             }
         }catch (Exception e) {
             System.out.println("크롤링 실패: " + e.getMessage());
+        }
+    }
+    public void crawlStarBucks(){
+        WebDriver webDriver = webDriverConfig.create();
+        WebDriverWait wait = new WebDriverWait(webDriver , Duration.ofSeconds(15));
+        Map<String , String> categoryMap = Map.of(
+                "음료" , "https://www.starbucks.co.kr/menu/drink_list.do",
+                "푸드" , "https://www.starbucks.co.kr/menu/food_list.do"
+        );
+        try{
+            for(Map.Entry<String , String> entry : categoryMap.entrySet()){
+                String category = entry.getKey();
+                String url = entry.getValue();
+
+                webDriver.get(url);
+                wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("li.menuDataSet")));
+                List<WebElement> menuItems = webDriver.findElements(By.cssSelector("li.menuDataSet"));
+                System.out.println("Found li.menuDataSet count: " + menuItems.size());
+
+                for (WebElement item : menuItems) {
+                    WebElement link = item.findElement(By.cssSelector("a.goDrinkVew"));
+                    String productCd = link.getAttribute("prod");
+
+                    String detailUrl;
+                    if (category.equals("음료")) {
+                        detailUrl = "https://www.starbucks.co.kr/menu/drink_view.do?product_cd=" + productCd;
+                    } else if (category.equals("푸드")) {
+                        detailUrl = "https://www.starbucks.co.kr/menu/food_view.do?product_cd=" + productCd;
+                    } else {
+                        continue;
+                    }
+                    System.out.println("상세 페이지 URL: " + detailUrl);
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("오류: " + e.getMessage());
         }
     }
     private double extractNumber(String text) {
