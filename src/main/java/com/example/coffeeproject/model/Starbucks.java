@@ -19,7 +19,7 @@ public class Starbucks {
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private int starbucks_id;
 
-    private int ounce; // 중량 1oz=29.5ml
+    private double ounce; // 중량 1oz=29.5ml
     private int price; // 가격
     private String name; // 이름
     private String eng_name; // 영어 이름
