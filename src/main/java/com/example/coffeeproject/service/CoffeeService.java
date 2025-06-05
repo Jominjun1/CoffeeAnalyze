@@ -214,7 +214,6 @@ public class CoffeeService {
                             double kcal =0;
                             for(WebElement info : infoList){
                                 String text= info.getText();
-                                System.out.println(text);
                                 if(text.endsWith("ml")){
                                     String number = text.replaceAll("[^0-9]" ,"");
                                     if(!number.isEmpty()){
@@ -323,6 +322,7 @@ public class CoffeeService {
             System.out.println("크롤링 실패: " + e.getMessage());
         }
     }
+
     public void crawlStarBucks(){
         WebDriver webDriver = webDriverConfig.create();
         WebDriverWait wait = new WebDriverWait(webDriver , Duration.ofSeconds(15));
@@ -359,6 +359,99 @@ public class CoffeeService {
             System.out.println("오류: " + e.getMessage());
         }
     }
+    public void crawlEdiya() {
+        WebDriver webDriver = webDriverConfig.create();
+        WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(15));
+        Map<String, String> categoryMap = Map.of(
+                "음료", "https://ediya.com/contents/drink.html",
+                "푸드", "https://ediya.com/contents/bakery.html"
+        );
+
+        try {
+            for (Map.Entry<String, String> entry : categoryMap.entrySet()) {
+                String category = entry.getKey();
+                String url = entry.getValue();
+                webDriver.get(url);
+                Thread.sleep(1500);
+
+                while (true) {
+                    try {
+                        WebElement moreBtn = webDriver.findElement(By.cssSelector("a.line_btn"));
+                        if (moreBtn.isDisplayed()) {
+                            ((JavascriptExecutor) webDriver).executeScript("arguments[0].click();", moreBtn);
+                            Thread.sleep(1000);
+                        } else {
+                            break;
+                        }
+                    } catch (NoSuchElementException e) {
+                        break;
+                    }
+                }
+                wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div.con_align > ul.menu_ul > li")));
+                List<WebElement> items = webDriver.findElements(By.cssSelector("div.con_align > ul.menu_ul > li"));
+                System.out.println("[" + category + "] 메뉴 개수: " + items.size());
+
+                for (int i = 0; i < items.size(); i++) {
+                    try {
+                        // 아이템 재조회 (StaleElement 방지)
+                        items = webDriver.findElements(By.cssSelector("ul.menu_ul > li"));
+                        WebElement item = items.get(i);
+
+                        String imageUrl = item.findElement(By.cssSelector("a > img")).getAttribute("src");
+
+                        // 클릭해서 상세 보기 모달 열기
+                        ((JavascriptExecutor) webDriver).executeScript("arguments[0].click();", item);
+
+                        // 모달 로딩 및 display: block 상태 대기
+                        wait.until(driver -> {
+                            WebElement detail = driver.findElement(By.cssSelector("div.pro_detail"));
+                            String style = detail.getAttribute("style");
+                            return style != null && style.contains("display: block");
+                        });
+
+                        // 상세정보 추출
+                        WebElement h2 = webDriver.findElement(By.cssSelector("div.detail_con h2"));
+                        String engName = h2.findElement(By.tagName("span")).getText();
+                        String name = h2.getText().replace(engName, "").trim();
+
+                        String description = webDriver.findElement(By.cssSelector("div.detail_txt > p")).getText();
+
+                        Map<String, String> nutrition = new HashMap<>();
+                        List<WebElement> dtList = webDriver.findElements(By.cssSelector("div.pro_nutri > dl > dt"));
+                        List<WebElement> ddList = webDriver.findElements(By.cssSelector("div.pro_nutri > dl > dd"));
+
+                        for (int j = 0; j < dtList.size(); j++) {
+                            String label = dtList.get(j).getText().trim();
+                            String value = ddList.get(j).getText().trim();
+                            nutrition.put(label, value);
+                        }
+
+                        // 출력
+                        System.out.println("[" + category + "] " + name + " / " + engName);
+                        System.out.println("설명: " + description);
+                        System.out.println("이미지: " + imageUrl);
+                        for (Map.Entry<String, String> nut : nutrition.entrySet()) {
+                            System.out.println(nut.getKey() + ": " + nut.getValue());
+                        }
+                        System.out.println("--------------------------------------------------");
+
+                        // 모달 닫기
+                        WebElement closeBtn = webDriver.findElement(By.cssSelector("a.btn_close"));
+                        ((JavascriptExecutor) webDriver).executeScript("arguments[0].click();", closeBtn);
+                        Thread.sleep(500);
+
+                    } catch (Exception e) {
+                        System.out.println("메뉴 항목 처리 중 오류: " + e.getMessage());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("오류: " + e.getMessage());
+        } finally {
+            webDriver.quit();
+        }
+    }
+
     private double extractNumber(String text){
         String numStr = text.replaceAll("[^0-9.]", "");
         if(!numStr.isEmpty()){
@@ -366,4 +459,5 @@ public class CoffeeService {
         }
         return 0.0;
     }
+
 }

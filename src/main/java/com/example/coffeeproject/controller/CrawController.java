@@ -44,4 +44,14 @@ public class CrawController {
             return ResponseEntity.internalServerError().body("오류 :" + e.getMessage());
         }
     }
+
+    @GetMapping("/ediya")
+    public ResponseEntity<String> crawEdiya(){
+        try{
+            coffeeService.crawlEdiya();
+            return ResponseEntity.ok("성공");
+        }catch (Exception e){
+            return ResponseEntity.internalServerError().body("오류 :" + e.getMessage());
+        }
+    }
 }
