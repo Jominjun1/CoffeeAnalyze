@@ -180,13 +180,14 @@ public class CoffeeService {
 
     public void crawlMegaCoffee() {
         WebDriver webDriver = webDriverConfig.create();
-        WebDriverWait wait = new WebDriverWait(webDriver , Duration.ofSeconds(15));
-        Map<String , String> categoryMap = Map.of(
-                "음료" , "https://www.mega-mgccoffee.com/menu/?menu_category1=1&menu_category2=1/",
-                "푸드" , "https://www.mega-mgccoffee.com/menu/?menu_category1=1&menu_category2=2/"
+        WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(15));
+        Map<String, String> categoryMap = Map.of(
+                "음료", "https://www.mega-mgccoffee.com/menu/?menu_category1=1&menu_category2=1/",
+                "푸드", "https://www.mega-mgccoffee.com/menu/?menu_category1=2&menu_category2=2/"
         );
-        try{
-            for(Map.Entry<String , String> entry : categoryMap.entrySet()){
+
+        try {
+            for (Map.Entry<String, String> entry : categoryMap.entrySet()) {
                 String category = entry.getKey();
                 String url = entry.getValue();
 
@@ -194,67 +195,68 @@ public class CoffeeService {
                 wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("ul#menu_list > li")));
                 int currentPage = 1;
 
-                while(true){
-                    List<WebElement> items = webDriver.findElements(By.cssSelector("ul#menu_list > li"));
-                    for(WebElement item : items){
-                        try{
+                while (true) {
+                    int itemCount = webDriver.findElements(By.cssSelector("ul#menu_list > li")).size();
+                    for (int i = 0; i < itemCount; i++) {
+                        try {
+                            List<WebElement> items = webDriver.findElements(By.cssSelector("ul#menu_list > li"));
+                            WebElement item = items.get(i);
+
                             Actions actions = new Actions(webDriver);
                             actions.moveToElement(item).perform();
+                            Thread.sleep(300);
+
                             WebElement innerDiv = item.findElement(By.cssSelector("div.inner_modal"));
                             JavascriptExecutor js = (JavascriptExecutor) webDriver;
                             js.executeScript("arguments[0].style.display='block';", innerDiv);
+                            wait.until(ExpectedConditions.visibilityOf(innerDiv));
+
                             String name = innerDiv.findElement(By.cssSelector("b")).getText();
                             String engName = innerDiv.findElement(By.cssSelector("div.cont_text_inner.cont_text_info")).getText();
                             String note = innerDiv.findElement(By.cssSelector("div.cont_text")).getText();
                             String allergic = innerDiv.findElement(By.cssSelector("div.cont_text.cont_text_info")).getText();
                             String imageUrl = item.findElement(By.cssSelector("div.cont_gallery_list_img img")).getAttribute("src");
-                            List<WebElement> infoList = innerDiv.findElements(By.cssSelector("div.cont_text_inner"));
 
-                            double ounce =0;
-                            double kcal =0;
-                            for(WebElement info : infoList){
-                                String text= info.getText();
-                                if(text.endsWith("ml")){
-                                    String number = text.replaceAll("[^0-9]" ,"");
-                                    if(!number.isEmpty()){
+                            List<WebElement> infoList = innerDiv.findElements(By.cssSelector("div.cont_text_inner"));
+                            double ounce = 0, kcal = 0;
+                            for (WebElement info : infoList) {
+                                String text = info.getText();
+                                if (text.endsWith("ml")) {
+                                    String number = text.replaceAll("[^0-9]", "");
+                                    if (!number.isEmpty()) {
                                         ounce = Integer.parseInt(number);
                                     }
-                                }else if(text.endsWith("oz")){
-                                    String number = text.replaceAll("[^0-9]" ,"");
-                                    if(!number.isEmpty()){
-                                        ounce = (int) (Integer.parseInt(number) * 29.5);
+                                } else if (text.endsWith("oz")) {
+                                    String number = text.replaceAll("[^0-9]", "");
+                                    if (!number.isEmpty()) {
+                                        ounce = Integer.parseInt(number) * 29.5;
                                     }
-                                }else if(text.endsWith("kcal")){
-                                    String number = text.replaceAll("1회" , "").replaceAll("[^0-9.]" ,"");
-                                    if(!number.isEmpty()){
+                                } else if (text.endsWith("kcal")) {
+                                    String number = text.replaceAll("1회", "").replaceAll("[^0-9.]", "");
+                                    if (!number.isEmpty()) {
                                         kcal = Double.parseDouble(number);
                                     }
                                 }
                             }
+
                             double caffeine = 0, sodium = 0, sugar = 0, saturatedFat = 0, protein = 0;
-                            try{
+                            try {
                                 WebElement elementList = innerDiv.findElement(By.cssSelector("div.cont_list ul"));
                                 List<WebElement> rows = elementList.findElements(By.tagName("li"));
-
-                                for(WebElement row : rows){
+                                for (WebElement row : rows) {
                                     String text = row.getText().trim();
-                                    if(text.startsWith("카페인")){
-                                        caffeine = extractNumber(text);
-                                    }else if (text.startsWith("나트륨")){
-                                        sodium = extractNumber(text);
-                                    }else if (text.startsWith("당류")){
-                                        sugar = extractNumber(text);
-                                    }else if (text.startsWith("포화지방")){
-                                        saturatedFat = extractNumber(text);
-                                    }else if (text.startsWith("단백질")){
-                                        protein = extractNumber(text);
-                                    }
+                                    if (text.startsWith("카페인")) caffeine = extractNumber(text);
+                                    else if (text.startsWith("나트륨")) sodium = extractNumber(text);
+                                    else if (text.startsWith("당류")) sugar = extractNumber(text);
+                                    else if (text.startsWith("포화지방")) saturatedFat = extractNumber(text);
+                                    else if (text.startsWith("단백질")) protein = extractNumber(text);
                                 }
-                            }catch(NoSuchElementException e){
-                                    System.out.println("영양정보 없음");
+                            } catch (NoSuchElementException e) {
+                                System.out.println("영양정보 없음");
                             }
+
                             Optional<MegaCoffee> optMega = megaRepository.findByName(name);
-                            if(optMega.isPresent()){
+                            if (optMega.isPresent()) {
                                 MegaCoffee megaCoffee = optMega.get();
                                 Ingredient ingredient = megaCoffee.getIngredients();
 
@@ -266,7 +268,8 @@ public class CoffeeService {
                                                 Math.abs(ingredient.getSaturated_fat() - saturatedFat) > 0.001 ||
                                                 Math.abs(ingredient.getProtein() - protein) > 0.001 ||
                                                 !Objects.equals(ingredient.getAllergic_ingredients(), allergic);
-                                if(isDifferent){
+
+                                if (isDifferent) {
                                     ingredient.setKcal(kcal);
                                     ingredient.setCaffeine(caffeine);
                                     ingredient.setSodium(sodium);
@@ -281,7 +284,7 @@ public class CoffeeService {
                                     megaCoffee.setImageUrl(imageUrl);
                                     megaRepository.save(megaCoffee);
                                 }
-                            }else{
+                            } else {
                                 Ingredient ingredient = new Ingredient();
                                 ingredient.setKcal(kcal);
                                 ingredient.setCaffeine(caffeine);
@@ -299,26 +302,29 @@ public class CoffeeService {
                                 megaCoffee.setImageUrl(imageUrl);
                                 megaCoffee.setNote("[" + category + "] " + note);
                                 megaCoffee.setPrice(0);
-                                megaCoffee.setOunce(0);
                                 megaCoffee.setIngredients(ingredient);
                                 megaRepository.save(megaCoffee);
                             }
-                        }catch (Exception e){
+
+                        } catch (StaleElementReferenceException se) {
+                            System.out.println("Stale 요소 재시도 실패: " + se.getMessage());
+                        } catch (Exception e) {
                             System.out.println("모달 크롤링 실패: " + e.getMessage());
                         }
                     }
+
                     List<WebElement> pageLinks = webDriver.findElements(By.cssSelector("ul#board_page > li > a.board_page_link"));
-                    if(currentPage < pageLinks.size()){
+                    if (currentPage < pageLinks.size()) {
                         WebElement nextPageLink = pageLinks.get(currentPage); // 0-based index
                         ((JavascriptExecutor) webDriver).executeScript("arguments[0].click();", nextPageLink);
                         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("ul#menu_list > li")));
                         currentPage++;
-                    }else{
+                    } else {
                         break;
                     }
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println("크롤링 실패: " + e.getMessage());
         }
     }
