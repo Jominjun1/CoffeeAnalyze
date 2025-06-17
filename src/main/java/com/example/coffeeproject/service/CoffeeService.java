@@ -72,19 +72,24 @@ public class CoffeeService {
                         double ounce =0;
                         String allergic = "알레르기 정보 없음";
                         try{
-                            WebElement baseInfo = hover.findElement(By.cssSelector("p.menu_ingredient_basis"));
-                            String text = baseInfo.getText();
-                            Pattern pattern = Pattern.compile("(\\d+(\\.\\d+)?)\\s*(oz|ml)");
-                            Matcher matcher = pattern.matcher(text);
-                            if(matcher.find()){
-                                double value = Double.parseDouble(matcher.group(1));
-                                String unit = matcher.group(3).toLowerCase();
-                                ounce = switch (unit){
-                                    case "oz" -> Math.round(value * 29.5 * 10) / 10.0;
-                                    case "ml" -> Math.round(value * 10) / 10.0;
-                                    case "g" -> value;
-                                    default -> ounce;
-                                };
+                            List<WebElement> baseInfos = hover.findElements(By.cssSelector("p.menu_ingredient_basis"));
+                            for (WebElement baseInfo : baseInfos) {
+                                String text = baseInfo.getText();
+                                if (text.contains("1회")) {
+                                    Pattern pattern = Pattern.compile("(\\d+(\\.\\d+)?)\\s*(oz|ml)");
+                                    Matcher matcher = pattern.matcher(text);
+                                    if (matcher.find()) {
+                                        double value = Double.parseDouble(matcher.group(1));
+                                        String unit = matcher.group(3).toLowerCase();
+                                        ounce = switch (unit) {
+                                            case "oz" -> Math.round(value * 29.5 * 10) / 10.0;
+                                            case "ml" -> Math.round(value * 10) / 10.0;
+                                            case "g" -> value;
+                                            default -> ounce;
+                                        };
+                                    }
+                                    break;
+                                }
                             }
                             String fullInfo = hover.findElement(By.cssSelector("div.ingredient_table_box")).getText();
                             String[] lines = fullInfo.split("\\r?\\n");
@@ -378,7 +383,6 @@ public class CoffeeService {
                 String category = entry.getKey();
                 String url = entry.getValue();
                 webDriver.get(url);
-                Thread.sleep(1500);
 
                 while (true) {
                     try {
@@ -393,33 +397,31 @@ public class CoffeeService {
                         break;
                     }
                 }
-                wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div.con_align > ul.menu_ul > li")));
-                List<WebElement> items = webDriver.findElements(By.cssSelector("div.con_align > ul.menu_ul > li"));
-                System.out.println("[" + category + "] 메뉴 개수: " + items.size());
-
+                System.out.println("다 긁은거임");
+                wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div.con_align > ul > li")));
+                List<WebElement> items = webDriver.findElements(By.cssSelector("div.con_align > ul > li > a"));
+                System.out.printf("갯수 : %d\n", items.size());
                 for (int i = 0; i < items.size(); i++) {
                     try {
-                        // 아이템 재조회 (StaleElement 방지)
-                        items = webDriver.findElements(By.cssSelector("ul.menu_ul > li"));
+                        items = webDriver.findElements(By.cssSelector("div.con_align > ul > li > a"));
                         WebElement item = items.get(i);
 
-                        String imageUrl = item.findElement(By.cssSelector("a > img")).getAttribute("src");
+                        String imageUrl = item.findElement(By.tagName("img")).getAttribute("src");
 
-                        // 클릭해서 상세 보기 모달 열기
                         ((JavascriptExecutor) webDriver).executeScript("arguments[0].click();", item);
+                        Thread.sleep(1000);
 
-                        // 모달 로딩 및 display: block 상태 대기
-                        wait.until(driver -> {
-                            WebElement detail = driver.findElement(By.cssSelector("div.pro_detail"));
-                            String style = detail.getAttribute("style");
-                            return style != null && style.contains("display: block");
-                        });
+//                        wait.until(driver -> {
+//                            WebElement detail = driver.findElement(By.cssSelector("div.pro_detail"));
+//                            String style = detail.getAttribute("style");
+//                            System.out.println("pro_detail style: " + style);
+//                            return style != null && style.contains("display: block");
+//                        });
 
-                        // 상세정보 추출
+
                         WebElement h2 = webDriver.findElement(By.cssSelector("div.detail_con h2"));
                         String engName = h2.findElement(By.tagName("span")).getText();
                         String name = h2.getText().replace(engName, "").trim();
-
                         String description = webDriver.findElement(By.cssSelector("div.detail_txt > p")).getText();
 
                         Map<String, String> nutrition = new HashMap<>();
@@ -432,7 +434,6 @@ public class CoffeeService {
                             nutrition.put(label, value);
                         }
 
-                        // 출력
                         System.out.println("[" + category + "] " + name + " / " + engName);
                         System.out.println("설명: " + description);
                         System.out.println("이미지: " + imageUrl);
@@ -440,11 +441,10 @@ public class CoffeeService {
                             System.out.println(nut.getKey() + ": " + nut.getValue());
                         }
                         System.out.println("--------------------------------------------------");
-
-                        // 모달 닫기
-                        WebElement closeBtn = webDriver.findElement(By.cssSelector("a.btn_close"));
-                        ((JavascriptExecutor) webDriver).executeScript("arguments[0].click();", closeBtn);
-                        Thread.sleep(500);
+//
+//                        WebElement closeBtn = webDriver.findElement(By.cssSelector("a.btn_close"));
+//                        ((JavascriptExecutor) webDriver).executeScript("arguments[0].click();", closeBtn);
+//                        Thread.sleep(500);
 
                     } catch (Exception e) {
                         System.out.println("메뉴 항목 처리 중 오류: " + e.getMessage());
