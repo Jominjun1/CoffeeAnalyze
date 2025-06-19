@@ -1,25 +1,194 @@
 <div align="center">
-  
-# 커피 프로젝트(진행중)
+
+# ☕ CoffeeAnalyze - 커피 비교 분석 시스템
+
+**다양한 커피 브랜드의 메뉴를 비교하고 분석할 수 있는 웹 애플리케이션**
+
+[![Vue.js](https://img.shields.io/badge/Vue.js-3.x-4FC08D?style=for-the-badge&logo=vue.js)](https://vuejs.org/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-6DB33F?style=for-the-badge&logo=spring-boot)](https://spring.io/projects/spring-boot)
+[![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=java)](https://www.oracle.com/java/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql)](https://www.mysql.com/)
 
 </div>
 
-## 목차
-  - [작품 개요](#작품-개요)
-  - [작품 소개](#작품-소개)
-  - [프로젝트 구조 및 설계](#프로젝트-구조)
-  - [기능](#기능)
+## 📋 목차
+- [프로젝트 개요](#프로젝트-개요)
+- [주요 기능](#주요-기능)
+- [기술 스택](#기술-스택)
+- [프로젝트 구조](#프로젝트-구조)
+- [설치 및 실행](#설치-및-실행)
+- [사용법](#사용법)
+- [API 문서](#api-문서)
+- [스크린샷](#스크린샷)
 
+## 🎯 프로젝트 개요
 
-## 작품 개요
-![image](https://github.com/user-attachments/assets/8ed9e0ac-fcaa-49f7-b680-b3f8ff7f804a)
+현대사회에서 커피는 한 잔의 음료를 넘어서 삶의 일부가 되었습니다. 대한민국에는 많은 커피 브랜드와 전문점이 있는데, 각 프랜차이즈의 커피를 비교하는 시스템을 만들고자 합니다.
 
-  현대사회에서 커피는 한 잔의 음료를 넘어서 삶의 일부가 되었습니다.
-  
-  대한민국에는 많은 커피 브랜드와 전문점이 있는데, 각 프렌차이즈의 커피끼리 비교하는 시스템을 만들고자 합니다.
+### 주요 특징
+- **다중 브랜드 지원**: 스타벅스, 메가커피, 빽다방, 이디야, 컴포즈, 투썸플레이스
+- **실시간 비교**: 최대 4개의 커피를 동시에 비교 분석
+- **영양 정보 분석**: 칼로리, 카페인, 당류, 나트륨, 포화지방, 단백질 비교
+- **관리자 기능**: 웹 크롤링을 통한 메뉴 데이터 자동 업데이트
+- **반응형 디자인**: 모바일과 데스크톱에서 모두 최적화된 사용자 경험
 
-## 작품 소개
+## ✨ 주요 기능
 
-## 프로젝트 구조 및 설계
+### 👥 일반 사용자 기능
+- **커피 검색**: 브랜드별 커피 메뉴 검색
+- **다중 선택**: 최대 4개 커피 동시 선택
+- **상세 비교**: 영양 정보 및 알레르기 정보 비교
+- **시각적 표시**: 색상 코딩을 통한 직관적인 비교 결과
+- **모달 뷰**: 전체 화면 모달에서 상세 비교 결과 확인
 
-## 기능
+### 🔐 관리자 기능
+- **JWT 인증**: 안전한 관리자 로그인 시스템
+- **메뉴 업데이트**: 브랜드별 선택적 크롤링
+- **실시간 크롤링**: Selenium을 활용한 웹 스크래핑
+- **데이터 관리**: MySQL 데이터베이스 관리
+
+### 🎨 UI/UX 특징
+- **모던 디자인**: 그라데이션과 그림자 효과
+- **브랜드 컬러**: 각 브랜드별 고유 색상 적용
+- **애니메이션**: 부드러운 호버 효과와 전환
+- **직관적 인터페이스**: 사용자 친화적인 레이아웃
+
+## 🛠️ 기술 스택
+
+### Frontend
+- **Vue.js 3**: Composition API 기반 반응형 프레임워크
+- **Pinia**: 상태 관리 라이브러리
+- **Vite**: 빠른 개발 서버 및 빌드 도구
+- **CSS3**: 모던 스타일링 및 애니메이션
+
+### Backend
+- **Spring Boot 3**: Java 기반 웹 프레임워크
+- **Spring Security**: JWT 기반 인증 시스템
+- **Spring Data JPA**: 데이터베이스 ORM
+- **Selenium**: 웹 크롤링 도구
+
+### Database
+- **MySQL 8.0**: 관계형 데이터베이스
+- **JPA/Hibernate**: 객체 관계 매핑
+
+### DevOps
+- **Gradle**: 빌드 도구
+- **ChromeDriver**: 웹 크롤링 드라이버
+
+## 📁 프로젝트 구조
+
+```
+CoffeeAnalyze/
+├── frontend/                 # Vue.js 프론트엔드
+│   ├── src/
+│   │   ├── components/       # Vue 컴포넌트
+│   │   ├── stores/          # Pinia 상태 관리
+│   │   ├── services/        # API 서비스
+│   │   └── assets/          # CSS 및 이미지
+│   └── package.json
+├── src/main/java/
+│   └── com/example/coffeeproject/
+│       ├── controller/      # REST API 컨트롤러
+│       ├── service/         # 비즈니스 로직
+│       ├── repository/      # 데이터 접근 계층
+│       ├── model/          # 엔티티 클래스
+│       ├── config/         # 설정 클래스
+│       ├── util/           # 유틸리티 클래스
+│       └── filter/         # JWT 필터
+└── src/main/resources/
+    └── application.yml     # 애플리케이션 설정
+```
+
+## 🚀 설치 및 실행
+
+### Prerequisites
+- Java 17 이상
+- Node.js 16 이상
+- MySQL 8.0 이상
+- Chrome 브라우저
+
+### Backend 실행
+```bash
+# 프로젝트 루트 디렉토리에서
+./gradlew bootRun
+```
+
+### Frontend 실행
+```bash
+# frontend 디렉토리에서
+cd frontend
+npm install
+npm run dev
+```
+
+### 데이터베이스 설정
+1. MySQL 데이터베이스 생성
+2. `src/main/resources/application.yml`에서 데이터베이스 연결 정보 설정
+3. 애플리케이션 실행 시 자동으로 테이블 생성
+
+## 📖 사용법
+
+### 일반 사용자
+1. **커피 검색**: 검색창에 커피 이름 입력
+2. **커피 선택**: 원하는 커피들을 선택 (최대 4개)
+3. **비교 결과 확인**: "📊 비교 결과 보기" 버튼 클릭
+4. **상세 분석**: 모달에서 영양 정보 비교 확인
+
+### 관리자
+1. **로그인**: 좌상단 "🔐 관리자 로그인" 버튼 클릭
+2. **메뉴 업데이트**: 우측상단 "📊 메뉴 업데이트" 버튼 클릭
+3. **브랜드 선택**: 원하는 브랜드 선택하여 크롤링 실행
+4. **로그아웃**: "🚪 로그아웃" 버튼으로 세션 종료
+
+## 🔌 API 문서
+
+### 인증 API
+- `POST /admin/login` - 관리자 로그인
+- `POST /admin/logout` - 관리자 로그아웃
+- `GET /admin/me` - 현재 로그인된 관리자 정보
+
+### 커피 API
+- `GET /coffee/search` - 커피 검색
+- `GET /coffee/{id}` - 특정 커피 정보 조회
+
+### 크롤링 API
+- `GET /craw/mega_coffee` - 메가커피 크롤링
+- `GET /craw/paiks` - 빽다방 크롤링
+- `GET /craw/starBucks` - 스타벅스 크롤링
+- `GET /craw/ediya` - 이디야 크롤링
+
+## 📸 스크린샷
+
+### 메인 화면
+![메인 화면](screenshots/main.png)
+
+### 검색 결과
+![검색 결과](screenshots/search.png)
+
+### 비교 결과
+![비교 결과](screenshots/compare.png)
+
+### 관리자 로그인
+![관리자 로그인](screenshots/admin-login.png)
+
+## 🤝 기여하기
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 라이선스
+
+이 프로젝트는 MIT 라이선스 하에 배포됩니다. 자세한 내용은 `LICENSE` 파일을 참조하세요.
+
+## 📞 연락처
+
+프로젝트 링크: [https://github.com/your-username/CoffeeAnalyze](https://github.com/your-username/CoffeeAnalyze)
+
+---
+
+<div align="center">
+⭐ 이 프로젝트가 도움이 되었다면 스타를 눌러주세요!
+</div>
