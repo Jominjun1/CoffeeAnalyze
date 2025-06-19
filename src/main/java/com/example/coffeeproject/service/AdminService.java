@@ -27,11 +27,33 @@ public class AdminService {
     }
 
     public ResponseEntity<?> login(Admin admin) {
+        // admin_id가 null이거나 빈 문자열인 경우 체크
+        if (admin.getAdmin_id() == null || admin.getAdmin_id().trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("관리자 ID를 입력해주세요.");
+        }
+        
+        // admin_pw가 null이거나 빈 문자열인 경우 체크
+        if (admin.getAdmin_pw() == null || admin.getAdmin_pw().trim().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("비밀번호를 입력해주세요.");
+        }
+        
         Optional<Admin> foundAdmin = adminRepository.findById(admin.getAdmin_id());
         if (foundAdmin.isPresent()) {
             Admin existingAdmin = foundAdmin.get();
-            // 암호화된 비밀번호 비교
-            if (passwordEncoder.matches(admin.getAdmin_pw(), existingAdmin.getAdmin_pw())) {
+            
+            // 비밀번호 검증 (BCrypt 또는 평문 비교)
+            boolean passwordMatches = false;
+            String storedPassword = existingAdmin.getAdmin_pw();
+            
+            if (storedPassword.startsWith("$2a$")) {
+                // BCrypt로 암호화된 비밀번호
+                passwordMatches = passwordEncoder.matches(admin.getAdmin_pw(), storedPassword);
+            } else {
+                // 평문 비밀번호 (임시 처리)
+                passwordMatches = admin.getAdmin_pw().equals(storedPassword);
+            }
+            
+            if (passwordMatches) {
                 String token = jwtUtil.generateToken(existingAdmin.getAdmin_id(), existingAdmin.getName());
                 Map<String, Object> response = new HashMap<>();
                 response.put("message", "로그인 성공");

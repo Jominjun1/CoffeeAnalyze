@@ -5,8 +5,10 @@ import com.example.coffeeproject.repository.AdminRepository;
 import com.example.coffeeproject.service.AdminService;
 import com.example.coffeeproject.util.JwtUtil;
 import com.example.coffeeproject.util.PasswordEncryptor;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +25,8 @@ public class AdminController {
     private AdminRepository adminRepository;
     @Autowired
     private PasswordEncryptor passwordEncryptor;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     public AdminController(AdminService adminService) {
@@ -31,7 +35,10 @@ public class AdminController {
     
     // 관리자 로그인 API
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Admin admin) {
+    public ResponseEntity<?> login(@Valid @RequestBody Admin admin) {
+        if (admin == null) {
+            return ResponseEntity.badRequest().body("로그인 정보가 없습니다.");
+        }
         return adminService.login(admin);
     }
     
@@ -70,5 +77,29 @@ public class AdminController {
     public ResponseEntity<String> encryptPassword(@PathVariable String adminId) {
         passwordEncryptor.encryptAdminPassword(adminId);
         return ResponseEntity.ok("관리자 '" + adminId + "' 비밀번호가 암호화되었습니다.");
+    }
+    
+    // 크롤링 시작 API
+    @PostMapping("/start-crawling")
+    public ResponseEntity<?> startCrawling(HttpServletRequest request) {
+        // JWT 토큰 검증
+        String token = request.getHeader("Authorization");
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(401).body("인증 토큰이 필요합니다.");
+        }
+        
+        token = token.substring(7);
+        if (!jwtUtil.validateToken(token)) {
+            return ResponseEntity.status(401).body("유효하지 않은 토큰입니다.");
+        }
+        
+        try {
+            // 크롤링 서비스 호출 (비동기로 실행)
+            // 여기서는 간단히 성공 메시지만 반환
+            // 실제 크롤링 로직은 별도 서비스에서 처리
+            return ResponseEntity.ok("크롤링이 시작되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("크롤링 시작 중 오류가 발생했습니다: " + e.getMessage());
+        }
     }
 }

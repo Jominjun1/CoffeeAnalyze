@@ -1,24 +1,44 @@
 package com.example.coffeeproject.controller;
 
 import com.example.coffeeproject.service.CoffeeService;
+import com.example.coffeeproject.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpServletRequest;
 
 @RestController
-@RequestMapping("/crawCoffee")
+@RequestMapping("/craw")
+@CrossOrigin(origins = "*")
 public class CrawController {
 
     private final CoffeeService coffeeService;
+    
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Autowired
     public CrawController(CoffeeService coffeeService) {
         this.coffeeService = coffeeService;
     }
 
+    // JWT 토큰 검증 헬퍼 메서드
+    private boolean validateToken(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (token == null || !token.startsWith("Bearer ")) {
+            return false;
+        }
+        token = token.substring(7);
+        return jwtUtil.validateToken(token);
+    }
+
     @GetMapping("/paiks")
-    public ResponseEntity<String> crawPaiks(){
+    public ResponseEntity<String> crawPaiks(HttpServletRequest request){
+        if (!validateToken(request)) {
+            return ResponseEntity.status(401).body("인증이 필요합니다.");
+        }
+        
         try{
             coffeeService.crawlPaiksCoffee();
             return ResponseEntity.ok("성공");
@@ -26,8 +46,13 @@ public class CrawController {
             return ResponseEntity.internalServerError().body("오류 :" + e.getMessage());
         }
     }
+    
     @GetMapping("/mega_coffee")
-    public ResponseEntity<String> crawMegaCoffee(){
+    public ResponseEntity<String> crawMegaCoffee(HttpServletRequest request){
+        if (!validateToken(request)) {
+            return ResponseEntity.status(401).body("인증이 필요합니다.");
+        }
+        
         try{
             coffeeService.crawlMegaCoffee();
             return ResponseEntity.ok("성공");
@@ -35,8 +60,13 @@ public class CrawController {
             return ResponseEntity.internalServerError().body("오류 :" + e.getMessage());
         }
     }
+    
     @GetMapping("/starBucks")
-    public ResponseEntity<String> crawStarBucks(){
+    public ResponseEntity<String> crawStarBucks(HttpServletRequest request){
+        if (!validateToken(request)) {
+            return ResponseEntity.status(401).body("인증이 필요합니다.");
+        }
+        
         try{
             coffeeService.crawlStarBucks();
             return ResponseEntity.ok("성공");
@@ -46,7 +76,11 @@ public class CrawController {
     }
 
     @GetMapping("/ediya")
-    public ResponseEntity<String> crawEdiya(){
+    public ResponseEntity<String> crawEdiya(HttpServletRequest request){
+        if (!validateToken(request)) {
+            return ResponseEntity.status(401).body("인증이 필요합니다.");
+        }
+        
         try{
             coffeeService.crawlEdiya();
             return ResponseEntity.ok("성공");
