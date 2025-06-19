@@ -27,12 +27,9 @@ public class AdminService {
     }
 
     public ResponseEntity<?> login(Admin admin) {
-        // admin_id가 null이거나 빈 문자열인 경우 체크
         if (admin.getAdmin_id() == null || admin.getAdmin_id().trim().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("관리자 ID를 입력해주세요.");
         }
-        
-        // admin_pw가 null이거나 빈 문자열인 경우 체크
         if (admin.getAdmin_pw() == null || admin.getAdmin_pw().trim().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("비밀번호를 입력해주세요.");
         }
