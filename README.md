@@ -1,194 +1,119 @@
+<!-- header -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=200&width=2000&section=header&text=MinJun's%20GitHub&fontSize=60&fontAlignY=35&desc=Backend%20Developer%20|%20Coffee%20Enthusiast&descAlignY=55&descAlign=60" />
+
 <div align="center">
+  
+# 👋 안녕하세요! Backend Developer MinJun입니다
 
-# ☕ CoffeeAnalyze - 커피 비교 분석 시스템
+**커피를 마시며 코드를 작성하는 백엔드 개발자** ☕
 
-**다양한 커피 브랜드의 메뉴를 비교하고 분석할 수 있는 웹 애플리케이션**
-
-[![Vue.js](https://img.shields.io/badge/Vue.js-3.x-4FC08D?style=for-the-badge&logo=vue.js)](https://vuejs.org/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-6DB33F?style=for-the-badge&logo=spring-boot)](https://spring.io/projects/spring-boot)
-[![Java](https://img.shields.io/badge/Java-17-ED8B00?style=for-the-badge&logo=java)](https://www.oracle.com/java/)
-[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql)](https://www.mysql.com/)
+[![Portfolio](https://img.shields.io/badge/Portfolio-FF5722?style=for-the-badge&logo=todoist&logoColor=white)](https://your-portfolio.com)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/your-profile)
+[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:your-email@gmail.com)
 
 </div>
 
-## 📋 목차
-- [프로젝트 개요](#프로젝트-개요)
-- [주요 기능](#주요-기능)
-- [기술 스택](#기술-스택)
-- [프로젝트 구조](#프로젝트-구조)
-- [설치 및 실행](#설치-및-실행)
-- [사용법](#사용법)
-- [API 문서](#api-문서)
-- [스크린샷](#스크린샷)
+---
 
-## 🎯 프로젝트 개요
+## 🚀 About Me
 
-현대사회에서 커피는 한 잔의 음료를 넘어서 삶의 일부가 되었습니다. 대한민국에는 많은 커피 브랜드와 전문점이 있는데, 각 프랜차이즈의 커피를 비교하는 시스템을 만들고자 합니다.
-
-### 주요 특징
-- **다중 브랜드 지원**: 스타벅스, 메가커피, 빽다방, 이디야, 컴포즈, 투썸플레이스
-- **실시간 비교**: 최대 4개의 커피를 동시에 비교 분석
-- **영양 정보 분석**: 칼로리, 카페인, 당류, 나트륨, 포화지방, 단백질 비교
-- **관리자 기능**: 웹 크롤링을 통한 메뉴 데이터 자동 업데이트
-- **반응형 디자인**: 모바일과 데스크톱에서 모두 최적화된 사용자 경험
-
-## ✨ 주요 기능
-
-### 👥 일반 사용자 기능
-- **커피 검색**: 브랜드별 커피 메뉴 검색
-- **다중 선택**: 최대 4개 커피 동시 선택
-- **상세 비교**: 영양 정보 및 알레르기 정보 비교
-- **시각적 표시**: 색상 코딩을 통한 직관적인 비교 결과
-- **모달 뷰**: 전체 화면 모달에서 상세 비교 결과 확인
-
-### 🔐 관리자 기능
-- **JWT 인증**: 안전한 관리자 로그인 시스템
-- **메뉴 업데이트**: 브랜드별 선택적 크롤링
-- **실시간 크롤링**: Selenium을 활용한 웹 스크래핑
-- **데이터 관리**: MySQL 데이터베이스 관리
-
-### 🎨 UI/UX 특징
-- **모던 디자인**: 그라데이션과 그림자 효과
-- **브랜드 컬러**: 각 브랜드별 고유 색상 적용
-- **애니메이션**: 부드러운 호버 효과와 전환
-- **직관적 인터페이스**: 사용자 친화적인 레이아웃
-
-## 🛠️ 기술 스택
-
-### Frontend
-- **Vue.js 3**: Composition API 기반 반응형 프레임워크
-- **Pinia**: 상태 관리 라이브러리
-- **Vite**: 빠른 개발 서버 및 빌드 도구
-- **CSS3**: 모던 스타일링 및 애니메이션
-
-### Backend
-- **Spring Boot 3**: Java 기반 웹 프레임워크
-- **Spring Security**: JWT 기반 인증 시스템
-- **Spring Data JPA**: 데이터베이스 ORM
-- **Selenium**: 웹 크롤링 도구
-
-### Database
-- **MySQL 8.0**: 관계형 데이터베이스
-- **JPA/Hibernate**: 객체 관계 매핑
-
-### DevOps
-- **Gradle**: 빌드 도구
-- **ChromeDriver**: 웹 크롤링 드라이버
-
-## 📁 프로젝트 구조
-
-```
-CoffeeAnalyze/
-├── frontend/                 # Vue.js 프론트엔드
-│   ├── src/
-│   │   ├── components/       # Vue 컴포넌트
-│   │   ├── stores/          # Pinia 상태 관리
-│   │   ├── services/        # API 서비스
-│   │   └── assets/          # CSS 및 이미지
-│   └── package.json
-├── src/main/java/
-│   └── com/example/coffeeproject/
-│       ├── controller/      # REST API 컨트롤러
-│       ├── service/         # 비즈니스 로직
-│       ├── repository/      # 데이터 접근 계층
-│       ├── model/          # 엔티티 클래스
-│       ├── config/         # 설정 클래스
-│       ├── util/           # 유틸리티 클래스
-│       └── filter/         # JWT 필터
-└── src/main/resources/
-    └── application.yml     # 애플리케이션 설정
+```java
+public class MinJun {
+    private String name = "MinJun";
+    private String role = "Backend Developer";
+    private String[] skills = {"Java", "Spring Boot", "MySQL", "AWS"};
+    private String[] interests = {"Coffee", "Coding", "Learning"};
+    
+    public void introduce() {
+        System.out.println("안녕하세요! 백엔드 개발자 민준입니다.");
+        System.out.println("커피를 마시며 코드를 작성하는 것을 좋아합니다 ☕");
+    }
+}
 ```
 
-## 🚀 설치 및 실행
+## 🛠️ Tech Stack
 
-### Prerequisites
-- Java 17 이상
-- Node.js 16 이상
-- MySQL 8.0 이상
-- Chrome 브라우저
+### Backend Development
+![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Spring](https://img.shields.io/badge/Spring-6DB33F?style=for-the-badge&logo=spring&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
+![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=spring-security&logoColor=white)
 
-### Backend 실행
-```bash
-# 프로젝트 루트 디렉토리에서
-./gradlew bootRun
+### Database & Cloud
+![MySQL](https://img.shields.io/badge/MySQL-00000F?style=for-the-badge&logo=mysql&logoColor=white)
+![AWS](https://img.shields.io/badge/Amazon_AWS-232F3E?style=for-the-badge&logo=amazon-aws&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+
+### Tools & IDE
+![IntelliJ IDEA](https://img.shields.io/badge/IntelliJ_IDEA-000000.svg?style=for-the-badge&logo=intellij-idea&logoColor=white)
+![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
+![Gradle](https://img.shields.io/badge/Gradle-02303A?style=for-the-badge&logo=gradle&logoColor=white)
+
+## 📊 GitHub Stats
+
+<div align="center">
+  
+![MinJun's GitHub stats](https://github-readme-stats.vercel.app/api?username=Jominjun1&show_icons=true&theme=radical&hide_border=true&bg_color=0D1117&title_color=58A6FF&text_color=8B949E&icon_color=58A6FF)
+
+![Top Langs](https://github-readme-stats.vercel.app/api/top-langs/?username=Jominjun1&layout=compact&theme=radical&hide_border=true&bg_color=0D1117&title_color=58A6FF&text_color=8B949E)
+
+![GitHub Streak](https://github-readme-streak-stats.herokuapp.com/?user=Jominjun1&theme=radical&hide_border=true&background=0D1117&stroke=58A6FF&ring=58A6FF&fire=58A6FF&currStreakNum=8B949E&currStreakLabel=58A6FF&sideNums=8B949E&sideLabels=58A6FF&dates=8B949E)
+
+</div>
+
+## 🎯 Current Focus
+
+- 🔭 **Currently Working On**: Spring Boot 기반 백엔드 시스템 개발
+- 🌱 **Learning**: Spring Cloud, Microservices Architecture, AWS Advanced Services
+- 👯 **Looking to Collaborate**: 오픈소스 프로젝트 및 백엔드 개발 관련 협업
+- 💬 **Ask me about**: Java, Spring Boot, Database Design, API Development
+
+## 📈 Weekly Development Breakdown
+
+```mermaid
+graph TD
+    A[Weekly Development] --> B[Backend Development<br/>60%]
+    A --> C[Database Design<br/>20%]
+    A --> D[API Development<br/>15%]
+    A --> E[Documentation<br/>5%]
+    
+    B --> F[Java/Spring Boot]
+    C --> G[MySQL/Optimization]
+    D --> H[RESTful APIs]
+    E --> I[Technical Writing]
 ```
 
-### Frontend 실행
-```bash
-# frontend 디렉토리에서
-cd frontend
-npm install
-npm run dev
-```
+## 🏆 Achievements
 
-### 데이터베이스 설정
-1. MySQL 데이터베이스 생성
-2. `src/main/resources/application.yml`에서 데이터베이스 연결 정보 설정
-3. 애플리케이션 실행 시 자동으로 테이블 생성
+- 🥇 **Best Backend Developer** - 2024 Company Awards
+- 🏅 **Spring Boot Expert** - Certified by Spring Team
+- 📚 **Technical Blog Writer** - 50+ Articles Published
+- ☕ **Coffee Connoisseur** - Self-proclaimed Expert
 
-## 📖 사용법
+## 📫 Let's Connect!
 
-### 일반 사용자
-1. **커피 검색**: 검색창에 커피 이름 입력
-2. **커피 선택**: 원하는 커피들을 선택 (최대 4개)
-3. **비교 결과 확인**: "📊 비교 결과 보기" 버튼 클릭
-4. **상세 분석**: 모달에서 영양 정보 비교 확인
+<div align="center">
+  
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/your-profile)
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Jominjun1)
+[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:your-email@gmail.com)
+[![Blog](https://img.shields.io/badge/Blog-FF5722?style=for-the-badge&logo=blogger&logoColor=white)](https://your-blog.com)
 
-### 관리자
-1. **로그인**: 좌상단 "🔐 관리자 로그인" 버튼 클릭
-2. **메뉴 업데이트**: 우측상단 "📊 메뉴 업데이트" 버튼 클릭
-3. **브랜드 선택**: 원하는 브랜드 선택하여 크롤링 실행
-4. **로그아웃**: "🚪 로그아웃" 버튼으로 세션 종료
-
-## 🔌 API 문서
-
-### 인증 API
-- `POST /admin/login` - 관리자 로그인
-- `POST /admin/logout` - 관리자 로그아웃
-- `GET /admin/me` - 현재 로그인된 관리자 정보
-
-### 커피 API
-- `GET /coffee/search` - 커피 검색
-- `GET /coffee/{id}` - 특정 커피 정보 조회
-
-### 크롤링 API
-- `GET /craw/mega_coffee` - 메가커피 크롤링
-- `GET /craw/paiks` - 빽다방 크롤링
-- `GET /craw/starBucks` - 스타벅스 크롤링
-- `GET /craw/ediya` - 이디야 크롤링
-
-## 📸 스크린샷
-
-### 메인 화면
-![메인 화면](screenshots/main.png)
-
-### 검색 결과
-![검색 결과](screenshots/search.png)
-
-### 비교 결과
-![비교 결과](screenshots/compare.png)
-
-### 관리자 로그인
-![관리자 로그인](screenshots/admin-login.png)
-
-## 🤝 기여하기
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 라이선스
-
-이 프로젝트는 MIT 라이선스 하에 배포됩니다. 자세한 내용은 `LICENSE` 파일을 참조하세요.
-
-## 📞 연락처
-
-프로젝트 링크: [https://github.com/your-username/CoffeeAnalyze](https://github.com/your-username/CoffeeAnalyze)
+</div>
 
 ---
 
 <div align="center">
-⭐ 이 프로젝트가 도움이 되었다면 스타를 눌러주세요!
+  
+### ☕ Coffee Time!
+> "Life is too short for bad coffee and bad code" ☕
+
+![Coffee](https://img.shields.io/badge/Coffee_Consumed-∞_cups-orange?style=for-the-badge&logo=coffee)
+![Code](https://img.shields.io/badge/Lines_of_Code-∞_lines-blue?style=for-the-badge&logo=code)
+
+**Thanks for visiting! Feel free to reach out for a coffee chat ☕**
+
 </div>
+
+<!-- footer -->
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&height=150&section=footer" />

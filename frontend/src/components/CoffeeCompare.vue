@@ -59,11 +59,7 @@
           <ul class="brand-results">
             <li v-for="coffee in brandGroup.coffees" :key="coffee.brand + coffee.name" class="result-item">
               <span class="coffee-name">{{ coffee.name }}</span>
-              <button 
-                @click="selectCoffee(coffee)" 
-                class="select-btn"
-                :disabled="!canSelectMore || isAlreadySelected(coffee)"
-              >
+              <button @click="selectCoffee(coffee)" class="select-btn" :disabled="!canSelectMore || isAlreadySelected(coffee)">
                 {{ isAlreadySelected(coffee) ? '선택됨' : '선택' }}
               </button>
             </li>
@@ -97,11 +93,7 @@
           <button @click="closeComparisonModal" class="close-btn">×</button>
         </div>
         <div class="compare-table" :class="`compare-${selectedCoffees.length}`">
-          <div 
-            v-for="(coffee, index) in selectedCoffees" 
-            :key="index"
-            class="compare-col card"
-          >
+          <div v-for="(coffee, index) in selectedCoffees" :key="index" class="compare-col card">
             <h4>커피 {{ index + 1 }}</h4>
             <div class="coffee-content">
               <img :src="coffee.imageUrl" :alt="`커피${index + 1} 이미지`" class="coffee-img" />
@@ -144,23 +136,11 @@
         <form @submit.prevent="login" class="login-form">
           <div class="form-group">
             <label for="adminId">아이디</label>
-            <input 
-              id="adminId"
-              v-model="loginForm.adminId" 
-              type="text" 
-              placeholder="관리자 아이디를 입력하세요"
-              required
-            />
+            <input id="adminId" v-model="loginForm.adminId" type="text" placeholder="관리자 아이디를 입력하세요" required/>
           </div>
           <div class="form-group">
             <label for="password">비밀번호</label>
-            <input 
-              id="password"
-              v-model="loginForm.password" 
-              type="password" 
-              placeholder="비밀번호를 입력하세요"
-              required
-            />
+            <input id="password" v-model="loginForm.password" type="password" placeholder="비밀번호를 입력하세요" required/>
           </div>
           <div class="modal-buttons">
             <button type="submit" :disabled="isLoggingIn" class="login-submit-btn">

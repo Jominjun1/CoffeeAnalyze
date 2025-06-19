@@ -23,22 +23,11 @@ public class CrawController {
         this.coffeeService = coffeeService;
     }
 
-    // JWT 토큰 검증 헬퍼 메서드
-    private boolean validateToken(HttpServletRequest request) {
-        String token = request.getHeader("Authorization");
-        if (token == null || !token.startsWith("Bearer ")) {
-            return false;
-        }
-        token = token.substring(7);
-        return jwtUtil.validateToken(token);
-    }
-
     @GetMapping("/paiks")
     public ResponseEntity<String> crawPaiks(HttpServletRequest request){
         if (!validateToken(request)) {
             return ResponseEntity.status(401).body("인증이 필요합니다.");
         }
-        
         try{
             coffeeService.crawlPaiksCoffee();
             return ResponseEntity.ok("성공");
@@ -52,7 +41,6 @@ public class CrawController {
         if (!validateToken(request)) {
             return ResponseEntity.status(401).body("인증이 필요합니다.");
         }
-        
         try{
             coffeeService.crawlMegaCoffee();
             return ResponseEntity.ok("성공");
@@ -66,7 +54,6 @@ public class CrawController {
         if (!validateToken(request)) {
             return ResponseEntity.status(401).body("인증이 필요합니다.");
         }
-        
         try{
             coffeeService.crawlStarBucks();
             return ResponseEntity.ok("성공");
@@ -80,12 +67,21 @@ public class CrawController {
         if (!validateToken(request)) {
             return ResponseEntity.status(401).body("인증이 필요합니다.");
         }
-        
         try{
             coffeeService.crawlEdiya();
             return ResponseEntity.ok("성공");
         }catch (Exception e){
             return ResponseEntity.internalServerError().body("오류 :" + e.getMessage());
         }
+    }
+
+    // JWT 토큰 검증
+    private boolean validateToken(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (token == null || !token.startsWith("Bearer ")) {
+            return false;
+        }
+        token = token.substring(7);
+        return jwtUtil.validateToken(token);
     }
 }
