@@ -1,38 +1,48 @@
 package com.example.coffeeproject.service;
 
 import com.example.coffeeproject.model.Admin;
-import com.example.coffeeproject.respoitory.AdminRepository;
+import com.example.coffeeproject.repository.AdminRepository;
+import com.example.coffeeproject.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 public class AdminService {
     private final AdminRepository adminRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+    @Autowired
+    private JwtUtil jwtUtil;
 
     @Autowired
     public AdminService(AdminRepository adminRepository) {
         this.adminRepository = adminRepository;
     }
 
-    public ResponseEntity<String> signup(Object admin){
-        if(isUserIdAvailable(admin)){
-            saveUser(admin);
-            return ResponseEntity.ok("회원가입 성공");
-        }else{
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 존재하는 ID");
-        }
-    }
-
-    public void saveUser(Object admin) {
-        adminRepository.save((Admin)admin);
-    }
-    private boolean isUserIdAvailable(Object admin) {
-        if (admin instanceof Admin) {
-            return !adminRepository.existsById(((Admin) admin).getAdmin_id());
+    public ResponseEntity<?> login(Admin admin) {
+        Optional<Admin> foundAdmin = adminRepository.findById(admin.getAdmin_id());
+        if (foundAdmin.isPresent()) {
+            Admin existingAdmin = foundAdmin.get();
+            // 암호화된 비밀번호 비교
+            if (passwordEncoder.matches(admin.getAdmin_pw(), existingAdmin.getAdmin_pw())) {
+                String token = jwtUtil.generateToken(existingAdmin.getAdmin_id(), existingAdmin.getName());
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "로그인 성공");
+                response.put("token", token);
+                response.put("admin", existingAdmin);
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
+            }
         } else {
-            throw new IllegalArgumentException("잘못된 사용자 유형");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 관리자 ID입니다.");
         }
     }
 }

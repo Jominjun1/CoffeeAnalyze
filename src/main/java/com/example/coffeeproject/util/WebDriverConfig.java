@@ -1,4 +1,4 @@
-package com.example.coffeeproject.Utill;
+package com.example.coffeeproject.util;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;

@@ -1,12 +1,12 @@
 package com.example.coffeeproject.service;
 
-import com.example.coffeeproject.Utill.WebDriverConfig;
+import com.example.coffeeproject.util.WebDriverConfig;
 import com.example.coffeeproject.model.Ingredient;
 import com.example.coffeeproject.model.MegaCoffee;
 import com.example.coffeeproject.model.PaiksCoffee;
-import com.example.coffeeproject.respoitory.IngredientRepository;
-import com.example.coffeeproject.respoitory.MegaRepository;
-import com.example.coffeeproject.respoitory.PaiksRepository;
+import com.example.coffeeproject.repository.IngredientRepository;
+import com.example.coffeeproject.repository.MegaRepository;
+import com.example.coffeeproject.repository.PaiksRepository;
 import org.openqa.selenium.*;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.interactions.Actions;
@@ -320,7 +320,7 @@ public class CoffeeService {
 
                     List<WebElement> pageLinks = webDriver.findElements(By.cssSelector("ul#board_page > li > a.board_page_link"));
                     if (currentPage < pageLinks.size()) {
-                        WebElement nextPageLink = pageLinks.get(currentPage); // 0-based index
+                        WebElement nextPageLink = pageLinks.get(currentPage); 
                         ((JavascriptExecutor) webDriver).executeScript("arguments[0].click();", nextPageLink);
                         wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector("ul#menu_list > li")));
                         currentPage++;

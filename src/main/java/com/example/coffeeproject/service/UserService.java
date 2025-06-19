@@ -3,19 +3,16 @@ package com.example.coffeeproject.service;
 import com.example.coffeeproject.DTO.CoffeeDTO;
 import com.example.coffeeproject.DTO.IngredientDTO;
 import com.example.coffeeproject.model.*;
-import com.example.coffeeproject.respoitory.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import com.example.coffeeproject.repository.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class UserService {
-    
-    private final UserRepository userRepository;
+
     private final MegaRepository megaRepository;
     private final PaiksRepository paiksRepository;
     private final ATwosomePlaceRepository atwosomePlaceRepository;
@@ -24,8 +21,8 @@ public class UserService {
     private final EDIYARepository ediyaRepository;
     
     @Autowired
-    public UserService(UserRepository userRepository, MegaRepository megaRepository, PaiksRepository paiksRepository, ATwosomePlaceRepository atwosomePlaceRepository, ComposeRepository composeRepository, StarbucksRepository starbucksRepository, EDIYARepository ediyaRepository) {
-        this.userRepository = userRepository;
+    public UserService( MegaRepository megaRepository, PaiksRepository paiksRepository, ATwosomePlaceRepository atwosomePlaceRepository,
+                        ComposeRepository composeRepository, StarbucksRepository starbucksRepository, EDIYARepository ediyaRepository) {
         this.megaRepository = megaRepository;
         this.paiksRepository = paiksRepository;
         this.atwosomePlaceRepository = atwosomePlaceRepository;
@@ -33,20 +30,6 @@ public class UserService {
         this.starbucksRepository = starbucksRepository;
         this.ediyaRepository = ediyaRepository;
     }
-
-    public ResponseEntity<String> signup(Object user){
-        if(isUserIdAvailable(user)){
-            saveUser(user);
-            return ResponseEntity.ok("회원가입 성공");
-        }else{
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("이미 존재하는 ID");
-        }
-    }
-
-    public void saveUser(Object user) {
-        userRepository.save((User)user);
-    }
-
     public List<CoffeeDTO> searchCoffeeByName(String name){
         List<CoffeeDTO> coffees = new ArrayList<>();
         for (MegaCoffee m : megaRepository.findByNameContainingIgnoreCase(name)) {
@@ -99,13 +82,6 @@ public class UserService {
                 ing.getSugar(),
                 ing.getAllergic_ingredients()
         );
-    }
-    private boolean isUserIdAvailable(Object user) {
-        if (user instanceof User) {
-            return !userRepository.existsById(((User) user).getUser_id());
-        } else {
-            throw new IllegalArgumentException("잘못된 사용자 유형");
-        }
     }
 
 }

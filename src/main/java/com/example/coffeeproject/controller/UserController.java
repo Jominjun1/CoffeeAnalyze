@@ -9,9 +9,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RequestMapping("/user")
+@RequestMapping("/getCoffee")
 @RestController
 @Controller
+@CrossOrigin(origins = "http://localhost:5173")
 public class UserController {
 
     @Autowired
