@@ -50,7 +50,6 @@ public class UserService {
         for (ATwosomePlace a : atwosomePlaceRepository.findByNameContainingIgnoreCase(name)) {
             coffees.add(mapToDTO(a));
         }
-
         return coffees;
     }
 

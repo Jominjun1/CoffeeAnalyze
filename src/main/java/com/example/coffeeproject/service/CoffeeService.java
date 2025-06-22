@@ -440,11 +440,6 @@ public class CoffeeService {
                         for (Map.Entry<String, String> nut : nutrition.entrySet()) {
                             System.out.println(nut.getKey() + ": " + nut.getValue());
                         }
-                        System.out.println("--------------------------------------------------");
-//
-//                        WebElement closeBtn = webDriver.findElement(By.cssSelector("a.btn_close"));
-//                        ((JavascriptExecutor) webDriver).executeScript("arguments[0].click();", closeBtn);
-//                        Thread.sleep(500);
 
                     } catch (Exception e) {
                         System.out.println("메뉴 항목 처리 중 오류: " + e.getMessage());

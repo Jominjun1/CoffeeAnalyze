@@ -26,7 +26,7 @@ public class CrawController {
     @GetMapping("/paiks")
     public ResponseEntity<String> crawPaiks(HttpServletRequest request){
         if (!validateToken(request)) {
-            return ResponseEntity.status(401).body("인증이 필요합니다.");
+            return ResponseEntity.status(401).body("인증 필요");
         }
         try{
             coffeeService.crawlPaiksCoffee();
@@ -39,7 +39,7 @@ public class CrawController {
     @GetMapping("/mega_coffee")
     public ResponseEntity<String> crawMegaCoffee(HttpServletRequest request){
         if (!validateToken(request)) {
-            return ResponseEntity.status(401).body("인증이 필요합니다.");
+            return ResponseEntity.status(401).body("인증 필요");
         }
         try{
             coffeeService.crawlMegaCoffee();
@@ -52,7 +52,7 @@ public class CrawController {
     @GetMapping("/starBucks")
     public ResponseEntity<String> crawStarBucks(HttpServletRequest request){
         if (!validateToken(request)) {
-            return ResponseEntity.status(401).body("인증이 필요합니다.");
+            return ResponseEntity.status(401).body("인증 필요");
         }
         try{
             coffeeService.crawlStarBucks();
@@ -65,7 +65,7 @@ public class CrawController {
     @GetMapping("/ediya")
     public ResponseEntity<String> crawEdiya(HttpServletRequest request){
         if (!validateToken(request)) {
-            return ResponseEntity.status(401).body("인증이 필요합니다.");
+            return ResponseEntity.status(401).body("인증 필요");
         }
         try{
             coffeeService.crawlEdiya();

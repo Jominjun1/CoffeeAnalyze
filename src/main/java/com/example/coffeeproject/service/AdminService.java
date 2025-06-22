@@ -58,10 +58,10 @@ public class AdminService {
                 response.put("admin", existingAdmin);
                 return ResponseEntity.ok(response);
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호 불일치");
             }
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 관리자 ID입니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("존재하지 않는 관리자");
         }
     }
 }

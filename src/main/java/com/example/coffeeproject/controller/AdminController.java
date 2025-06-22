@@ -85,21 +85,21 @@ public class AdminController {
         // JWT 토큰 검증
         String token = request.getHeader("Authorization");
         if (token == null || !token.startsWith("Bearer ")) {
-            return ResponseEntity.status(401).body("인증 토큰이 필요합니다.");
+            return ResponseEntity.status(401).body("인증 토큰 필요");
         }
         
         token = token.substring(7);
         if (!jwtUtil.validateToken(token)) {
-            return ResponseEntity.status(401).body("유효하지 않은 토큰입니다.");
+            return ResponseEntity.status(401).body("유효하지 않은 토큰");
         }
         
         try {
             // 크롤링 서비스 호출 (비동기로 실행)
             // 여기서는 간단히 성공 메시지만 반환
             // 실제 크롤링 로직은 별도 서비스에서 처리
-            return ResponseEntity.ok("크롤링이 시작되었습니다.");
+            return ResponseEntity.ok("크롤링 시작");
         } catch (Exception e) {
-            return ResponseEntity.status(500).body("크롤링 시작 중 오류가 발생했습니다: " + e.getMessage());
+            return ResponseEntity.status(500).body("크롤링 중 오류가 발생:  " + e.getMessage());
         }
     }
 }

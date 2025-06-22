@@ -21,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Admin admin = adminRepository.findById(username)
-                .orElseThrow(() -> new UsernameNotFoundException("관리자를 찾을 수 없습니다: " + username));
+                .orElseThrow(() -> new UsernameNotFoundException("관리자 찾을 수 없음: " + username));
 
         return new User(admin.getAdmin_id(), admin.getAdmin_pw(),
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN")));
