@@ -32,25 +32,98 @@ public class UserService {
     }
     public List<CoffeeDTO> searchCoffeeByName(String name){
         List<CoffeeDTO> coffees = new ArrayList<>();
-        for (MegaCoffee m : megaRepository.findByNameContainingIgnoreCase(name)) {
-            coffees.add(mapToDTO(m));
+        
+        // 검색어 변형 생성
+        List<String> searchVariations = generateSearchVariations(name);
+        
+        // 각 브랜드별로 모든 변형으로 검색
+        for (String variation : searchVariations) {
+            // 메가커피 검색
+            for (MegaCoffee m : megaRepository.findByNameContainingIgnoreCase(variation)) {
+                CoffeeDTO dto = mapToDTO(m);
+                if (!isDuplicate(coffees, dto)) {
+                    coffees.add(dto);
+                }
+            }
+            
+            // 빽다방 검색
+            for (PaiksCoffee p : paiksRepository.findByNameContainingIgnoreCase(variation)) {
+                CoffeeDTO dto = mapToDTO(p);
+                if (!isDuplicate(coffees, dto)) {
+                    coffees.add(dto);
+                }
+            }
+            
+            // 이디야 검색
+            for (EDIYACoffee e : ediyaRepository.findByNameContainingIgnoreCase(variation)) {
+                CoffeeDTO dto = mapToDTO(e);
+                if (!isDuplicate(coffees, dto)) {
+                    coffees.add(dto);
+                }
+            }
+            
+            // 컴포즈 검색
+            for (ComposeCoffee c : composeRepository.findByNameContainingIgnoreCase(variation)) {
+                CoffeeDTO dto = mapToDTO(c);
+                if (!isDuplicate(coffees, dto)) {
+                    coffees.add(dto);
+                }
+            }
+            
+            // 스타벅스 검색
+            for (Starbucks s : starbucksRepository.findByNameContainingIgnoreCase(variation)) {
+                CoffeeDTO dto = mapToDTO(s);
+                if (!isDuplicate(coffees, dto)) {
+                    coffees.add(dto);
+                }
+            }
+            
+            // 투썸 검색
+            for (ATwosomePlace a : atwosomePlaceRepository.findByNameContainingIgnoreCase(variation)) {
+                CoffeeDTO dto = mapToDTO(a);
+                if (!isDuplicate(coffees, dto)) {
+                    coffees.add(dto);
+                }
+            }
         }
-        for (PaiksCoffee p : paiksRepository.findByNameContainingIgnoreCase(name)) {
-            coffees.add(mapToDTO(p));
-        }
-        for (EDIYACoffee e : ediyaRepository.findByNameContainingIgnoreCase(name)) {
-            coffees.add(mapToDTO(e));
-        }
-        for (ComposeCoffee c : composeRepository.findByNameContainingIgnoreCase(name)) {
-            coffees.add(mapToDTO(c));
-        }
-        for (Starbucks s : starbucksRepository.findByNameContainingIgnoreCase(name)) {
-            coffees.add(mapToDTO(s));
-        }
-        for (ATwosomePlace a : atwosomePlaceRepository.findByNameContainingIgnoreCase(name)) {
-            coffees.add(mapToDTO(a));
-        }
+        
         return coffees;
+    }
+    
+    // 검색어 변형 생성 메서드
+    private List<String> generateSearchVariations(String name) {
+        List<String> variations = new ArrayList<>();
+        
+        // 원본 검색어 추가
+        variations.add(name.trim());
+        
+        // 공백 제거 버전 추가
+        String noSpace = name.replaceAll("\\s+", "");
+        if (!noSpace.equals(name.trim())) {
+            variations.add(noSpace);
+        }
+        
+        // 공백 추가 버전들 생성
+        String[] words = name.trim().split("\\s+");
+        if (words.length > 1) {
+            // 이미 공백이 있는 경우, 공백을 제거한 버전도 추가
+            variations.add(String.join("", words));
+        } else if (words.length == 1 && words[0].length() > 2) {
+            // 단일 단어인 경우, 가능한 공백 조합 생성
+            String word = words[0];
+            for (int i = 1; i < word.length(); i++) {
+                variations.add(word.substring(0, i) + " " + word.substring(i));
+            }
+        }
+        
+        return variations;
+    }
+    
+    // 중복 체크 메서드
+    private boolean isDuplicate(List<CoffeeDTO> coffees, CoffeeDTO newCoffee) {
+        return coffees.stream()
+                .anyMatch(existing -> existing.getBrand().equals(newCoffee.getBrand()) 
+                        && existing.getName().equals(newCoffee.getName()));
     }
 
     private CoffeeDTO mapToDTO(MegaCoffee m) {

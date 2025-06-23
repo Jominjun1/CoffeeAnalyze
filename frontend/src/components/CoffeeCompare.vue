@@ -123,6 +123,10 @@
                   <span>알레르기</span> <b>{{ formatAllergic(coffee.ingredientDTO.allergicIngredients) }}</b>
                 </li>
               </ul>
+              <!-- 카페인 주의 문구 -->
+              <div v-if="coffee.ingredientDTO.caffeine > 30" class="caffeine-warning">
+                ⚠️ 고카페인 함량 섭취시 주의
+              </div>
             </div>
           </div>
         </div>
@@ -287,19 +291,41 @@ async function login() {
 }
 
 function formatAllergic(allergic) {
-  if (!allergic || 
-      allergic === '알레르기 성분: ' || 
-      allergic === '알레르기 성분:' ||
-      allergic === '알레르기 성분 : ' ||
-      allergic === '알레르기 성분 :' ||
-      allergic.trim() === '' || 
-      allergic.trim() === '알레르기 성분:' ||
-      allergic.trim() === '알레르기 성분 :') {
+  if (!allergic || allergic.trim() === '') {
     return '알레르기 정보 없음';
   }
   
-  // "알레르기 성분: " 또는 "알레르기 성분 : " 제거
-  return allergic.replace(/^알레르기 성분\s*:\s*/, '');
+  let cleaned = allergic.trim();
+  
+  // 다양한 형태의 알레르기 관련 접두사 제거
+  const prefixes = [
+    /^※\s*알레르기\s*유발\s*성분\s*:\s*/i,
+    /^알레르기\s*성분\s*정보\s*:\s*/i,
+    /^알레르기\s*성분\s*:\s*/i,
+    /^알레르기\s*유발\s*성분\s*:\s*/i,
+    /^알레르기\s*정보\s*:\s*/i,
+    /^알레르기\s*:\s*/i
+  ];
+  
+  for (const prefix of prefixes) {
+    cleaned = cleaned.replace(prefix, '');
+  }
+  
+  // 앞뒤 공백 제거
+  cleaned = cleaned.trim();
+  
+  // 빈 문자열이거나 의미없는 텍스트인 경우
+  if (!cleaned || 
+      cleaned === '알레르기 성분:' ||
+      cleaned === '알레르기 성분 :' ||
+      cleaned === '알레르기 정보:' ||
+      cleaned === '알레르기 정보 :' ||
+      cleaned === '알레르기 성분 정보:' ||
+      cleaned === '알레르기 성분 정보 :') {
+    return '알레르기 정보 없음';
+  }
+  
+  return cleaned;
 }
 
 function isAlreadySelected(coffee) {
