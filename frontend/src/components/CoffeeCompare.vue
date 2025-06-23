@@ -33,9 +33,20 @@
     
     <!-- 검색 섹션 -->
     <div class="search-section">
-      <input v-model="searchQuery" @keyup.enter="onSearch" placeholder="커피 이름을 입력하세요" class="search-input" />
-      <button @click="onSearch" :disabled="isLoading" class="search-btn">검색</button>
-      <button @click="clearSearch" class="clear-btn">초기화</button>
+      <div class="search-input-group">
+        <input v-model="searchQuery" @keyup.enter="onSearch" placeholder="커피 이름을 입력하세요" class="search-input" />
+        <select v-model="selectedCategory" class="category-select">
+          <option value="">전체 카테고리</option>
+          <option value="음료">음료</option>
+          <option value="푸드">푸드</option>
+          <option value="디저트">디저트</option>
+          <option value="음식">음식</option>
+        </select>
+      </div>
+      <div class="search-buttons">
+        <button @click="onSearch" :disabled="isLoading" class="search-btn">검색</button>
+        <button @click="clearSearch" class="clear-btn">초기화</button>
+      </div>
     </div>
 
     <!-- 로딩 및 빈 상태 -->
@@ -195,6 +206,9 @@ const loginForm = ref({
 // 서브메뉴 상태
 const showUpdateMenu = ref(false);
 
+// 카테고리 필터 상태
+const selectedCategory = ref('');
+
 // 로그인 상태 확인
 const checkLoginStatus = () => {
   const token = localStorage.getItem('adminToken');
@@ -206,10 +220,30 @@ const checkLoginStatus = () => {
 // 페이지 로드 시 로그인 상태 확인
 checkLoginStatus();
 
+// 카테고리별 필터링된 결과
+const filteredResults = computed(() => {
+  if (!selectedCategory.value) {
+    return searchResults.value;
+  }
+  
+  return searchResults.value.filter(coffee => {
+    if (!coffee.note) return false;
+    
+    // 음료 카테고리의 경우 커피, 빽스치노도 포함
+    if (selectedCategory.value === '음료') {
+      return coffee.note.includes(`[${selectedCategory.value}]`) ||
+             coffee.note.includes('[커피]') ||
+             coffee.note.includes('[빽스치노]');
+    }
+    
+    return coffee.note.includes(`[${selectedCategory.value}]`);
+  });
+});
+
 // 매장별로 그룹화된 결과
 const groupedResults = computed(() => {
   const groups = {};
-  searchResults.value.forEach(coffee => {
+  filteredResults.value.forEach(coffee => {
     if (!groups[coffee.brand]) {
       groups[coffee.brand] = [];
     }
@@ -224,7 +258,7 @@ const groupedResults = computed(() => {
 
 // 전체 결과 개수
 const totalResults = computed(() => {
-  return searchResults.value.length;
+  return filteredResults.value.length;
 });
 
 function onSearch() {
@@ -472,10 +506,9 @@ function closeComparisonModal() {
 function clearSearch() {
   // 검색어와 검색 결과 초기화
   searchQuery.value = '';
+  selectedCategory.value = '';
   searchResults.value = [];
   // 선택된 커피 초기화
   selectedCoffees.value = [];
-  // 페이지 새로고침 (홈 버튼 효과)
-  window.location.reload();
 }
 </script> 
