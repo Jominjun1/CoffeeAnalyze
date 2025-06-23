@@ -1,5 +1,7 @@
 package com.example.coffeeproject.service;
 
+import com.example.coffeeproject.model.EDIYACoffee;
+import com.example.coffeeproject.repository.EDIYARepository;
 import com.example.coffeeproject.util.WebDriverConfig;
 import com.example.coffeeproject.model.Ingredient;
 import com.example.coffeeproject.model.MegaCoffee;
@@ -25,14 +27,16 @@ public class CoffeeService {
     private final PaiksRepository paiksRepository;
     private final MegaRepository  megaRepository;
     private final WebDriverConfig webDriverConfig;
+    private final EDIYARepository eDIYARepository;
 
     @Autowired
     public CoffeeService(IngredientRepository ingredientRepository, PaiksRepository paiksRepository,
-                         MegaRepository megaRepository, WebDriverConfig webDriverConfig){
+                         MegaRepository megaRepository, WebDriverConfig webDriverConfig, EDIYARepository eDIYARepository){
         this.ingredientRepository = ingredientRepository;
         this.paiksRepository = paiksRepository;
         this.megaRepository = megaRepository;
         this.webDriverConfig = webDriverConfig;
+        this.eDIYARepository = eDIYARepository;
     }
 
     public void crawlPaiksCoffee(){
@@ -377,7 +381,6 @@ public class CoffeeService {
                 "음료", "https://ediya.com/contents/drink.html",
                 "푸드", "https://ediya.com/contents/bakery.html"
         );
-
         try {
             for (Map.Entry<String, String> entry : categoryMap.entrySet()) {
                 String category = entry.getKey();
@@ -390,57 +393,123 @@ public class CoffeeService {
                         if (moreBtn.isDisplayed()) {
                             ((JavascriptExecutor) webDriver).executeScript("arguments[0].click();", moreBtn);
                             Thread.sleep(1000);
-                        } else {
-                            break;
-                        }
-                    } catch (NoSuchElementException e) {
-                        break;
-                    }
+                        } else {break;}
+                    } catch (NoSuchElementException e) {break;}
                 }
-                System.out.println("다 긁은거임");
-                wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div.con_align > ul > li")));
+
+                wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div.con_align > ul > li > a")));
                 List<WebElement> items = webDriver.findElements(By.cssSelector("div.con_align > ul > li > a"));
                 System.out.printf("갯수 : %d\n", items.size());
+
                 for (int i = 0; i < items.size(); i++) {
                     try {
                         items = webDriver.findElements(By.cssSelector("div.con_align > ul > li > a"));
                         WebElement item = items.get(i);
-
                         String imageUrl = item.findElement(By.tagName("img")).getAttribute("src");
 
-                        ((JavascriptExecutor) webDriver).executeScript("arguments[0].click();", item);
-                        Thread.sleep(1000);
+                        WebElement li = (WebElement) ((JavascriptExecutor) webDriver).executeScript("arguments[0].click(); return arguments[0].parentElement;", item);
 
-//                        wait.until(driver -> {
-//                            WebElement detail = driver.findElement(By.cssSelector("div.pro_detail"));
-//                            String style = detail.getAttribute("style");
-//                            System.out.println("pro_detail style: " + style);
-//                            return style != null && style.contains("display: block");
-//                        });
+                        Thread.sleep(300);
 
-
-                        WebElement h2 = webDriver.findElement(By.cssSelector("div.detail_con h2"));
-                        String engName = h2.findElement(By.tagName("span")).getText();
+                        WebElement h2 = li.findElement(By.cssSelector("div.detail_con > h2"));
+                        String engName = "";
+                        try {
+                            engName = h2.findElement(By.tagName("span")).getText().trim();
+                        } catch (NoSuchElementException e) {}
                         String name = h2.getText().replace(engName, "").trim();
-                        String description = webDriver.findElement(By.cssSelector("div.detail_txt > p")).getText();
+
+                        List<WebElement> pList = li.findElements(By.cssSelector("div.detail_con > div.detail_txt > p"));
+                        StringBuilder descBuilder = new StringBuilder();
+                        for (WebElement p : pList) {
+                            descBuilder.append(p.getText().trim()).append(" ");
+                        }
+                        String note = descBuilder.toString().trim();
 
                         Map<String, String> nutrition = new HashMap<>();
-                        List<WebElement> dtList = webDriver.findElements(By.cssSelector("div.pro_nutri > dl > dt"));
-                        List<WebElement> ddList = webDriver.findElements(By.cssSelector("div.pro_nutri > dl > dd"));
-
-                        for (int j = 0; j < dtList.size(); j++) {
+                        List<WebElement> dtList = li.findElements(By.cssSelector("div.pro_nutri > dl > dt"));
+                        List<WebElement> ddList = li.findElements(By.cssSelector("div.pro_nutri > dl > dd"));
+                        for (int j = 0; j < Math.min(dtList.size(), ddList.size()); j++) {
                             String label = dtList.get(j).getText().trim();
                             String value = ddList.get(j).getText().trim();
                             nutrition.put(label, value);
                         }
 
-                        System.out.println("[" + category + "] " + name + " / " + engName);
-                        System.out.println("설명: " + description);
-                        System.out.println("이미지: " + imageUrl);
-                        for (Map.Entry<String, String> nut : nutrition.entrySet()) {
-                            System.out.println(nut.getKey() + ": " + nut.getValue());
+                        String allergic = "";
+                        try {
+                            allergic = li.findElement(By.cssSelector("div.pro_allergy")).getText().trim();
+                        } catch (NoSuchElementException e) {
+                            allergic = "";
                         }
 
+                        String ounce = "";
+                        try {
+                            String rawOunce = li.findElement(By.cssSelector("div.pro_size")).getText().trim();
+                            if (rawOunce.contains(":")) {
+                                String part = rawOunce.split(":")[1].trim();
+                                ounce = part.replaceAll("[^0-9]", "");
+                            } else {
+                                ounce = rawOunce.replaceAll("[^0-9]", "");
+                            }
+                        } catch (NoSuchElementException e) {
+                            ounce = "";
+                        }
+                        double kcal = parseNutritionValue(nutrition.getOrDefault("칼로리", "0"));
+                        double caffeine = parseNutritionValue(nutrition.getOrDefault("카페인", "0"));
+                        double sodium = parseNutritionValue(nutrition.getOrDefault("나트륨", "0"));
+                        double sugar = parseNutritionValue(nutrition.getOrDefault("당류", "0"));
+                        double saturatedFat = parseNutritionValue(nutrition.getOrDefault("포화지방", "0"));
+                        double protein = parseNutritionValue(nutrition.getOrDefault("단백질", "0"));
+
+                        Optional<EDIYACoffee> optEDIYA = eDIYARepository.findByName(name);
+                        if (optEDIYA.isPresent()) {
+                            EDIYACoffee ediyaCoffee = optEDIYA.get();
+                            Ingredient ingredient = ediyaCoffee.getIngredients();
+
+                            boolean isDifferent =
+                                    Math.abs(ingredient.getKcal() - kcal) > 0.001 ||
+                                            Math.abs(ingredient.getCaffeine() - caffeine) > 0.001 ||
+                                            Math.abs(ingredient.getSodium() - sodium) > 0.001 ||
+                                            Math.abs(ingredient.getSugar() - sugar) > 0.001 ||
+                                            Math.abs(ingredient.getSaturated_fat() - saturatedFat) > 0.001 ||
+                                            Math.abs(ingredient.getProtein() - protein) > 0.001 ||
+                                            !Objects.equals(ingredient.getAllergic_ingredients(), allergic);
+
+                            if (isDifferent) {
+                                ingredient.setKcal(kcal);
+                                ingredient.setCaffeine(caffeine);
+                                ingredient.setSodium(sodium);
+                                ingredient.setSugar(sugar);
+                                ingredient.setSaturated_fat(saturatedFat);
+                                ingredient.setProtein(protein);
+                                ingredient.setAllergic_ingredients(allergic);
+                                ingredientRepository.save(ingredient);
+
+                                ediyaCoffee.setOunce(Integer.parseInt(ounce));
+                                ediyaCoffee.setNote("[" + category + "] " + note);
+                                ediyaCoffee.setImageUrl(imageUrl);
+                                eDIYARepository.save(ediyaCoffee);
+                            }
+                        } else {
+                            Ingredient ingredient = new Ingredient();
+                            ingredient.setKcal(kcal);
+                            ingredient.setCaffeine(caffeine);
+                            ingredient.setSodium(sodium);
+                            ingredient.setSugar(sugar);
+                            ingredient.setSaturated_fat(saturatedFat);
+                            ingredient.setProtein(protein);
+                            ingredient.setAllergic_ingredients(allergic);
+                            ingredientRepository.save(ingredient);
+
+                            EDIYACoffee ediyaCoffee = new EDIYACoffee();
+                            ediyaCoffee.setName(name);
+                            ediyaCoffee.setOunce(Integer.parseInt(ounce));
+                            ediyaCoffee.setEng_name(engName);
+                            ediyaCoffee.setImageUrl(imageUrl);
+                            ediyaCoffee.setNote("[" + category + "] " + note);
+                            ediyaCoffee.setPrice(0);
+                            ediyaCoffee.setIngredients(ingredient);
+                            eDIYARepository.save(ediyaCoffee);
+                        }
                     } catch (Exception e) {
                         System.out.println("메뉴 항목 처리 중 오류: " + e.getMessage());
                     }
@@ -459,6 +528,16 @@ public class CoffeeService {
             return Double.parseDouble(numStr);
         }
         return 0.0;
+    }
+
+    private double parseNutritionValue(String str) {
+        if (str == null || str.isEmpty()) return 0;
+        String digits = str.replaceAll("[^0-9.]", "");
+        try {
+            return Double.parseDouble(digits);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
     }
 
 }
