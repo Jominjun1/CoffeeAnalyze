@@ -171,11 +171,3 @@ npm run dev
 ### 관리자 로그인
 ![관리자 로그인](screenshots/admin-login.png)
 
-## 📄 라이선스
-
-이 프로젝트는 MIT 라이선스 하에 배포됩니다. 자세한 내용은 `LICENSE` 파일을 참조하세요.
-
-
-<div align="center">
-⭐ 이 프로젝트가 도움이 되었다면 스타를 눌러주세요!
-</div>
