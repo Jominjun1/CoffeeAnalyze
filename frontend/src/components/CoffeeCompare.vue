@@ -2,7 +2,7 @@
   <div class="coffee-compare">
     <!-- 홈 버튼 -->
     <div class="home-section">
-      <button @click="showLoginModal" class="login-btn">🔐 관리자 로그인</button>
+      <button v-if="!isAdminLoggedIn" @click="showLoginModal" class="login-btn">🔐 관리자 로그인</button>
     </div>
     
     <!-- 관리자 메뉴 업데이트 버튼 (로그인 후 표시) -->
@@ -23,6 +23,9 @@
           </button>
           <button @click="startCrawling('ediya')" :disabled="isCrawling" class="submenu-btn ediya">
             이디야
+          </button>
+          <button @click="startCrawling('compose')" :disabled="isCrawling" class="submenu-btn compose">
+            컴포즈커피
           </button>
         </div>
       </div>
