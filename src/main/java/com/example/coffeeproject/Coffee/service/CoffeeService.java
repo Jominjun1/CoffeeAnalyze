@@ -524,20 +524,45 @@ public class CoffeeService {
     public void crawlCompose() {
         WebDriver webDriver = webDriverConfig.create();
         WebDriverWait wait = new WebDriverWait(webDriver, Duration.ofSeconds(15));
-        Map<String, String> categoryMap = Map.of(
-                "음료", "https://ediya.com/contents/drink.html",
-                "푸드", "https://ediya.com/contents/bakery.html"
-        );
+        String baseUrl = "https://composecoffee.com/menu?page=";
         try {
-            for (Map.Entry<String, String> entry : categoryMap.entrySet()) {
-                String category = entry.getKey();
-                String url = entry.getValue();
-                webDriver.get(url);
+            webDriver.get(baseUrl + "1");
+            Thread.sleep(1000);
+
+            List<WebElement> pageElements = webDriver.findElements(By.cssSelector("li.page-item > a.page-link"));
+            int maxPage = pageElements.stream()
+                    .map(WebElement::getText)
+                    .filter(text -> text.matches("\\d+")) // 숫자만 필터
+                    .mapToInt(Integer::parseInt)
+                    .max()
+                    .orElse(1); // 기본값 1
+
+            for (int page = 1; page <= maxPage; page++) {
+                webDriver.get(baseUrl + page);
+                Thread.sleep(1000);
+
+                List<WebElement> items = webDriver.findElements(By.cssSelector("ul.menu_list > li"));
+                System.out.println("[" + page + "] 페이지 항목 수: " + items.size());
+
+                for (WebElement item : items) {
+                    try {
+                        String imageUrl = item.findElement(By.cssSelector("img")).getAttribute("src");
+                        String name = item.findElement(By.cssSelector("p.tit")).getText();
+                        String description = item.findElement(By.cssSelector("p.txt")).getText();
+
+                        System.out.println("이름: " + name);
+                        System.out.println("설명: " + description);
+                        System.out.println("이미지: " + imageUrl);
+                        System.out.println("----------------------------------");
+
+                    } catch (Exception e) {
+                        System.out.println("항목 처리 중 오류: " + e.getMessage());
+                    }
+                }
             }
+
         } catch (Exception e) {
-            System.out.println("오류: " + e.getMessage());
-        } finally {
-            webDriver.quit();
+                    System.out.println("항목 처리 중 오류: " + e.getMessage());
         }
     }
 
