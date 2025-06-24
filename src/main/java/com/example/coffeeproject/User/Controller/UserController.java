@@ -1,0 +1,30 @@
+package com.example.coffeeproject.User.Controller;
+
+import com.example.coffeeproject.Coffee.DTO.CoffeeDTO;
+import com.example.coffeeproject.User.Service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RequestMapping("/getCoffee")
+@RestController
+@Controller
+@CrossOrigin(origins = "http://localhost:5173")
+public class UserController {
+
+    @Autowired
+    private UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<CoffeeDTO>> searchCoffee(@RequestParam String name){
+        List<CoffeeDTO> coffees = userService.searchCoffeeByName(name);
+        return ResponseEntity.ok(coffees);
+    }
+}
