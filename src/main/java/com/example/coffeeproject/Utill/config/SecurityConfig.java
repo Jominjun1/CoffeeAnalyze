@@ -37,7 +37,8 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/admin/login").permitAll()
-                .requestMatchers("/getCoffee/**").permitAll()
+                .requestMatchers("/getCoffee/search").permitAll()
+                .requestMatchers("/getCoffee/update").authenticated()
                 .requestMatchers("/crawCoffee/**").permitAll()
                 .anyRequest().authenticated()
             )

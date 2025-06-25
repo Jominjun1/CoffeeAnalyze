@@ -156,4 +156,183 @@ public class UserService {
         );
     }
 
+    // 메뉴 수정 메서드
+    public void updateCoffees(List<CoffeeDTO> coffeeUpdates) {
+        for (CoffeeDTO coffeeDTO : coffeeUpdates) {
+            updateCoffee(coffeeDTO);
+        }
+    }
+
+    private void updateCoffee(CoffeeDTO coffeeDTO) {
+        String brand = coffeeDTO.getBrand();
+        String name = coffeeDTO.getName();
+        
+        switch (brand) {
+            case "메가커피":
+                updateMegaCoffee(coffeeDTO);
+                break;
+            case "빽다방":
+                updatePaiksCoffee(coffeeDTO);
+                break;
+            case "이디야":
+                updateEdiyaCoffee(coffeeDTO);
+                break;
+            case "스타벅스":
+                updateStarbucksCoffee(coffeeDTO);
+                break;
+            case "컴포즈":
+                updateComposeCoffee(coffeeDTO);
+                break;
+            case "투썸":
+                updateATwosomeCoffee(coffeeDTO);
+                break;
+            default:
+                throw new IllegalArgumentException("지원하지 않는 브랜드: " + brand);
+        }
+    }
+
+    private void updateMegaCoffee(CoffeeDTO coffeeDTO) {
+        MegaCoffee coffee = megaRepository.findByName(coffeeDTO.getName())
+                .orElseThrow(() -> new IllegalArgumentException("메뉴를 찾을 수 없습니다: " + coffeeDTO.getName()));
+        
+        // 기본 정보 업데이트
+        coffee.setName(coffeeDTO.getName());
+        coffee.setEng_name(coffeeDTO.getEngName());
+        coffee.setNote(coffeeDTO.getNote());
+        coffee.setImageUrl(coffeeDTO.getImageUrl());
+        
+        // 영양 정보 업데이트
+        Ingredient ingredient = coffee.getIngredients();
+        IngredientDTO ingredientDTO = coffeeDTO.getIngredientDTO();
+        ingredient.setKcal(ingredientDTO.getKcal());
+        ingredient.setCaffeine(ingredientDTO.getCaffeine());
+        ingredient.setSodium(ingredientDTO.getSodium());
+        ingredient.setSugar(ingredientDTO.getSugar());
+        ingredient.setSaturated_fat(ingredientDTO.getSaturatedFat());
+        ingredient.setProtein(ingredientDTO.getProtein());
+        ingredient.setAllergic_ingredients(ingredientDTO.getAllergicIngredients());
+        
+        megaRepository.save(coffee);
+    }
+
+    private void updatePaiksCoffee(CoffeeDTO coffeeDTO) {
+        PaiksCoffee coffee = paiksRepository.findByName(coffeeDTO.getName())
+                .orElseThrow(() -> new IllegalArgumentException("메뉴를 찾을 수 없습니다: " + coffeeDTO.getName()));
+        
+        // 기본 정보 업데이트
+        coffee.setName(coffeeDTO.getName());
+        coffee.setEng_name(coffeeDTO.getEngName());
+        coffee.setNote(coffeeDTO.getNote());
+        coffee.setImageUrl(coffeeDTO.getImageUrl());
+        
+        // 영양 정보 업데이트
+        Ingredient ingredient = coffee.getIngredients();
+        IngredientDTO ingredientDTO = coffeeDTO.getIngredientDTO();
+        ingredient.setKcal(ingredientDTO.getKcal());
+        ingredient.setCaffeine(ingredientDTO.getCaffeine());
+        ingredient.setSodium(ingredientDTO.getSodium());
+        ingredient.setSugar(ingredientDTO.getSugar());
+        ingredient.setSaturated_fat(ingredientDTO.getSaturatedFat());
+        ingredient.setProtein(ingredientDTO.getProtein());
+        ingredient.setAllergic_ingredients(ingredientDTO.getAllergicIngredients());
+        
+        paiksRepository.save(coffee);
+    }
+
+    private void updateEdiyaCoffee(CoffeeDTO coffeeDTO) {
+        EDIYACoffee coffee = ediyaRepository.findByName(coffeeDTO.getName())
+                .orElseThrow(() -> new IllegalArgumentException("메뉴를 찾을 수 없습니다: " + coffeeDTO.getName()));
+        
+        // 기본 정보 업데이트
+        coffee.setName(coffeeDTO.getName());
+        coffee.setEng_name(coffeeDTO.getEngName());
+        coffee.setNote(coffeeDTO.getNote());
+        coffee.setImageUrl(coffeeDTO.getImageUrl());
+        
+        // 영양 정보 업데이트
+        Ingredient ingredient = coffee.getIngredients();
+        IngredientDTO ingredientDTO = coffeeDTO.getIngredientDTO();
+        ingredient.setKcal(ingredientDTO.getKcal());
+        ingredient.setCaffeine(ingredientDTO.getCaffeine());
+        ingredient.setSodium(ingredientDTO.getSodium());
+        ingredient.setSugar(ingredientDTO.getSugar());
+        ingredient.setSaturated_fat(ingredientDTO.getSaturatedFat());
+        ingredient.setProtein(ingredientDTO.getProtein());
+        ingredient.setAllergic_ingredients(ingredientDTO.getAllergicIngredients());
+        
+        ediyaRepository.save(coffee);
+    }
+
+    private void updateStarbucksCoffee(CoffeeDTO coffeeDTO) {
+        Starbucks coffee = starbucksRepository.findByName(coffeeDTO.getName())
+                .orElseThrow(() -> new IllegalArgumentException("메뉴를 찾을 수 없습니다: " + coffeeDTO.getName()));
+        
+        // 기본 정보 업데이트
+        coffee.setName(coffeeDTO.getName());
+        coffee.setEng_name(coffeeDTO.getEngName());
+        coffee.setNote(coffeeDTO.getNote());
+        coffee.setImageUrl(coffeeDTO.getImageUrl());
+        
+        // 영양 정보 업데이트
+        Ingredient ingredient = coffee.getIngredients();
+        IngredientDTO ingredientDTO = coffeeDTO.getIngredientDTO();
+        ingredient.setKcal(ingredientDTO.getKcal());
+        ingredient.setCaffeine(ingredientDTO.getCaffeine());
+        ingredient.setSodium(ingredientDTO.getSodium());
+        ingredient.setSugar(ingredientDTO.getSugar());
+        ingredient.setSaturated_fat(ingredientDTO.getSaturatedFat());
+        ingredient.setProtein(ingredientDTO.getProtein());
+        ingredient.setAllergic_ingredients(ingredientDTO.getAllergicIngredients());
+        
+        starbucksRepository.save(coffee);
+    }
+
+    private void updateComposeCoffee(CoffeeDTO coffeeDTO) {
+        ComposeCoffee coffee = composeRepository.findByName(coffeeDTO.getName())
+                .orElseThrow(() -> new IllegalArgumentException("메뉴를 찾을 수 없습니다: " + coffeeDTO.getName()));
+        
+        // 기본 정보 업데이트
+        coffee.setName(coffeeDTO.getName());
+        coffee.setEng_name(coffeeDTO.getEngName());
+        coffee.setNote(coffeeDTO.getNote());
+        coffee.setImageUrl(coffeeDTO.getImageUrl());
+        
+        // 영양 정보 업데이트
+        Ingredient ingredient = coffee.getIngredients();
+        IngredientDTO ingredientDTO = coffeeDTO.getIngredientDTO();
+        ingredient.setKcal(ingredientDTO.getKcal());
+        ingredient.setCaffeine(ingredientDTO.getCaffeine());
+        ingredient.setSodium(ingredientDTO.getSodium());
+        ingredient.setSugar(ingredientDTO.getSugar());
+        ingredient.setSaturated_fat(ingredientDTO.getSaturatedFat());
+        ingredient.setProtein(ingredientDTO.getProtein());
+        ingredient.setAllergic_ingredients(ingredientDTO.getAllergicIngredients());
+        
+        composeRepository.save(coffee);
+    }
+
+    private void updateATwosomeCoffee(CoffeeDTO coffeeDTO) {
+        ATwosomePlace coffee = atwosomePlaceRepository.findByName(coffeeDTO.getName())
+                .orElseThrow(() -> new IllegalArgumentException("메뉴를 찾을 수 없습니다: " + coffeeDTO.getName()));
+        
+        // 기본 정보 업데이트
+        coffee.setName(coffeeDTO.getName());
+        coffee.setEng_name(coffeeDTO.getEngName());
+        coffee.setNote(coffeeDTO.getNote());
+        coffee.setImageUrl(coffeeDTO.getImageUrl());
+        
+        // 영양 정보 업데이트
+        Ingredient ingredient = coffee.getIngredients();
+        IngredientDTO ingredientDTO = coffeeDTO.getIngredientDTO();
+        ingredient.setKcal(ingredientDTO.getKcal());
+        ingredient.setCaffeine(ingredientDTO.getCaffeine());
+        ingredient.setSodium(ingredientDTO.getSodium());
+        ingredient.setSugar(ingredientDTO.getSugar());
+        ingredient.setSaturated_fat(ingredientDTO.getSaturatedFat());
+        ingredient.setProtein(ingredientDTO.getProtein());
+        ingredient.setAllergic_ingredients(ingredientDTO.getAllergicIngredients());
+        
+        atwosomePlaceRepository.save(coffee);
+    }
+
 }

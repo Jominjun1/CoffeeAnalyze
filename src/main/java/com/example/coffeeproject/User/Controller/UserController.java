@@ -27,4 +27,14 @@ public class UserController {
         List<CoffeeDTO> coffees = userService.searchCoffeeByName(name);
         return ResponseEntity.ok(coffees);
     }
+
+    @PutMapping("/update")
+    public ResponseEntity<String> updateCoffee(@RequestBody List<CoffeeDTO> coffeeUpdates) {
+        try {
+            userService.updateCoffees(coffeeUpdates);
+            return ResponseEntity.ok("메뉴가 성공적으로 업데이트되었습니다.");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("업데이트 실패: " + e.getMessage());
+        }
+    }
 }

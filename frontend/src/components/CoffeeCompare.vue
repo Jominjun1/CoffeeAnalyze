@@ -310,32 +310,32 @@
                 
                 <div class="field-group">
                   <label>칼로리 (kcal)</label>
-                  <input v-model.number="item.ingredientDTO.kcal" @input="handleEditIngredientInput(idx, 'kcal', item.ingredientDTO.kcal)" type="number" placeholder="0" />
+                  <input v-model.number="item.ingredientDTO.kcal" @input="handleEditIngredientInput(idx, 'kcal', item.ingredientDTO.kcal)" type="number" step="0.1" placeholder="0" />
                 </div>
                 
                 <div class="field-group">
                   <label>카페인 (mg)</label>
-                  <input v-model.number="item.ingredientDTO.caffeine" @input="handleEditIngredientInput(idx, 'caffeine', item.ingredientDTO.caffeine)" type="number" placeholder="0" />
+                  <input v-model.number="item.ingredientDTO.caffeine" @input="handleEditIngredientInput(idx, 'caffeine', item.ingredientDTO.caffeine)" type="number" step="0.1" placeholder="0" />
                 </div>
                 
                 <div class="field-group">
                   <label>나트륨 (mg)</label>
-                  <input v-model.number="item.ingredientDTO.sodium" @input="handleEditIngredientInput(idx, 'sodium', item.ingredientDTO.sodium)" type="number" placeholder="0" />
+                  <input v-model.number="item.ingredientDTO.sodium" @input="handleEditIngredientInput(idx, 'sodium', item.ingredientDTO.sodium)" type="number" step="0.1" placeholder="0" />
                 </div>
                 
                 <div class="field-group">
                   <label>당류 (g)</label>
-                  <input v-model.number="item.ingredientDTO.sugar" @input="handleEditIngredientInput(idx, 'sugar', item.ingredientDTO.sugar)" type="number" placeholder="0" />
+                  <input v-model.number="item.ingredientDTO.sugar" @input="handleEditIngredientInput(idx, 'sugar', item.ingredientDTO.sugar)" type="number" step="0.1" placeholder="0" />
                 </div>
                 
                 <div class="field-group">
                   <label>포화지방 (g)</label>
-                  <input v-model.number="item.ingredientDTO.saturatedFat" @input="handleEditIngredientInput(idx, 'saturatedFat', item.ingredientDTO.saturatedFat)" type="number" placeholder="0" />
+                  <input v-model.number="item.ingredientDTO.saturatedFat" @input="handleEditIngredientInput(idx, 'saturatedFat', item.ingredientDTO.saturatedFat)" type="number" step="0.1" placeholder="0" />
                 </div>
                 
                 <div class="field-group">
                   <label>단백질 (g)</label>
-                  <input v-model.number="item.ingredientDTO.protein" @input="handleEditIngredientInput(idx, 'protein', item.ingredientDTO.protein)" type="number" placeholder="0" />
+                  <input v-model.number="item.ingredientDTO.protein" @input="handleEditIngredientInput(idx, 'protein', item.ingredientDTO.protein)" type="number" step="0.1" placeholder="0" />
                 </div>
                 
                 <div class="field-group full-width">
@@ -358,8 +358,9 @@
 <script setup>
 import { useCoffeeStore } from '../stores/coffee';
 import { storeToRefs } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import '../assets/coffee-compare.css';
+import { coffeeApi } from '../services/api.js';
 
 const coffeeStore = useCoffeeStore();
 const { 
@@ -730,8 +731,31 @@ function toggleEditSelect(item) {
 }
 
 function openEditForm() {
-  // 선택된 항목들의 복사본을 폼 데이터로 사용
-  editFormData.value = editSelectedItems.value.map(item => ({ ...item }));
+  // 선택된 항목 검증
+  if (!editSelectedItems.value || editSelectedItems.value.length === 0) {
+    window.showToast('error', '오류', '수정할 항목을 선택해주세요.');
+    return;
+  }
+
+  console.log('선택된 항목들:', editSelectedItems.value);
+
+  // 선택된 항목들의 깊은 복사본을 폼 데이터로 사용
+  editFormData.value = editSelectedItems.value.map(item => {
+    // 각 항목의 ingredientDTO가 있는지 확인
+    if (!item.ingredientDTO) {
+      console.error('ingredientDTO가 없는 항목:', item);
+      return null;
+    }
+    
+    return {
+      ...item,
+      ingredientDTO: {
+        ...item.ingredientDTO
+      }
+    };
+  }).filter(item => item !== null); // null 항목 제거
+
+  console.log('폼 데이터 설정 완료:', editFormData.value);
 }
 
 function handleEditInput(idx, key, value) {
@@ -739,14 +763,70 @@ function handleEditInput(idx, key, value) {
 }
 
 function handleEditIngredientInput(idx, key, value) {
+  if (!editFormData.value[idx] || !editFormData.value[idx].ingredientDTO) {
+    console.error('ingredientDTO가 없는 항목:', editFormData.value[idx]);
+    return;
+  }
+  
   editFormData.value[idx].ingredientDTO[key] = value;
 }
 
-function saveEditForm() {
-  // 실제 저장은 하지 않고, 콘솔에 미리보기만 출력
-  console.log('수정될 데이터:', JSON.parse(JSON.stringify(editFormData.value)));
-  window.showToast('info', '저장 미리보기', '콘솔에서 수정 데이터를 확인하세요.');
-  // 이후 4단계에서 실제 저장 연동
+async function saveEditForm() {
+  try {
+    // 데이터 검증
+    if (!editFormData.value || editFormData.value.length === 0) {
+      window.showToast('error', '저장 실패', '수정할 데이터가 없습니다.');
+      return;
+    }
+
+    console.log('원본 데이터:', editFormData.value);
+
+    // 알레르기 정보가 빈 문자열인 경우 null로 변환
+    const processedData = editFormData.value.map(item => {
+      // 각 항목의 데이터 검증
+      if (!item || !item.ingredientDTO) {
+        console.error('잘못된 데이터 구조:', item);
+        throw new Error('데이터 구조가 올바르지 않습니다.');
+      }
+
+      return {
+        ...item,
+        ingredientDTO: {
+          ...item.ingredientDTO,
+          allergicIngredients: item.ingredientDTO.allergicIngredients?.trim() || null
+        }
+      };
+    });
+
+    console.log('처리된 데이터:', processedData);
+    
+    // 수정된 데이터를 백엔드로 전송
+    const result = await coffeeApi.updateCoffees(processedData);
+    
+    // 성공 메시지 표시
+    window.showToast('success', '저장 완료', '메뉴가 성공적으로 수정되었습니다.');
+    
+    // 수정 모드는 유지하고 폼 데이터만 초기화
+    editFormData.value = [];
+    
+  } catch (error) {
+    console.error('저장 중 오류 발생:', error);
+    
+    // 오류 메시지 표시
+    let errorMessage = '저장 중 오류가 발생했습니다.';
+    
+    if (error.response?.status === 403) {
+      errorMessage = '관리자 권한이 필요합니다. 다시 로그인해주세요.';
+      // 로그인 모달 표시
+      showLoginModal();
+    } else if (error.response?.data) {
+      errorMessage = error.response.data;
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+    
+    window.showToast('error', '저장 실패', errorMessage);
+  }
 }
 </script>
 
