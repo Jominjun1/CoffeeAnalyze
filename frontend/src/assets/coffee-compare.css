@@ -57,62 +57,76 @@ body {
   z-index: 10;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 1rem;
   align-items: flex-end;
 }
 
 .update-menu {
   position: relative;
+  margin: 0;
+  padding: 0;
+  width: auto;
+}
+
+.update-btn,
+.edit-btn,
+.logout-btn {
+  height: 40px;
+  line-height: 40px;
+  padding: 0 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
 }
 
 .update-btn {
   background: linear-gradient(135deg, #4ade80 0%, #22c55e 100%);
   color: white;
-  border: none;
-  border-radius: 25px;
-  padding: 0.8rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(74, 222, 128, 0.3);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
-
-.update-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(74, 222, 128, 0.4);
-}
-
 .update-btn:disabled {
   background: #bdc3c7;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
 }
 
-/* 로그아웃 버튼 스타일 */
+.edit-btn {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e42 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+  padding: 0;
+  line-height: normal;
+  height: 40px;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 20px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.edit-btn:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+}
+
 .logout-btn {
   background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
   color: white;
-  border: none;
-  border-radius: 25px;
-  padding: 0.6rem 1.2rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
   box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
-
 .logout-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+  background: #c0392b;
 }
 
 /* 서브메뉴 스타일 */

@@ -171,3 +171,117 @@ npm run dev
 ### 관리자 로그인
 ![관리자 로그인](screenshots/admin-login.png)
 
+# Coffee Analyze Project
+
+커피 분석 및 비교 애플리케이션
+
+## 🚀 빠른 시작
+
+### 방법 1: npm scripts 사용 (권장)
+```bash
+# 의존성 설치
+npm run install-all
+
+# 개발 서버 시작 (백엔드 + 프론트엔드 동시 실행)
+npm run dev
+```
+
+### 방법 2: Windows 배치 파일 사용
+```bash
+# 배치 파일 실행
+start-dev.bat
+```
+
+### 방법 3: PowerShell 스크립트 사용
+```powershell
+# PowerShell에서 실행
+.\start-dev.ps1
+```
+
+### 방법 4: 수동 실행
+```bash
+# 백엔드 실행 (새 터미널)
+./gradlew bootRun
+
+# 프론트엔드 실행 (새 터미널)
+cd frontend
+npm run dev
+```
+
+## 📁 프로젝트 구조
+
+```
+CoffeeAnalyze/
+├── src/                    # Spring Boot 백엔드
+│   └── main/java/
+│       └── com/example/coffeeproject/
+│           ├── Coffee/     # 커피 관련 기능
+│           ├── User/       # 사용자 관리
+│           └── Utill/      # 유틸리티
+├── frontend/               # Vue.js 프론트엔드
+│   ├── src/
+│   │   ├── components/     # Vue 컴포넌트
+│   │   ├── services/       # API 서비스
+│   │   └── stores/         # Pinia 스토어
+│   └── package.json
+├── build.gradle           # Gradle 설정
+├── package.json           # 루트 npm 설정
+└── start-dev.*           # 개발 서버 실행 스크립트
+```
+
+## 🌐 접속 주소
+
+- **백엔드 API**: http://localhost:8080
+- **프론트엔드**: http://localhost:5173
+
+## 🛠️ 기술 스택
+
+### 백엔드
+- Spring Boot 3.2.2
+- Spring Security
+- Spring Data JPA
+- MySQL
+- JWT Authentication
+- Selenium WebDriver
+
+### 프론트엔드
+- Vue.js 3
+- Vite
+- Pinia (상태 관리)
+- Axios (HTTP 클라이언트)
+
+## 📋 주요 기능
+
+- ☕ 커피 메뉴 검색 및 비교
+- 🏪 브랜드별 커피 정보 (스타벅스, 메가커피, 빽다방, 이디야, 투썸플레이스)
+- 📊 영양 정보 비교 (칼로리, 카페인, 당류 등)
+- 🔐 관리자 로그인 및 메뉴 업데이트
+- 📱 반응형 웹 디자인
+
+## 🔧 개발 환경 설정
+
+### 필수 요구사항
+- Java 21
+- Node.js 18+
+- MySQL 8.0+
+- Chrome/Chromium (웹 크롤링용)
+
+### 환경 설정
+1. MySQL 데이터베이스 생성
+2. `src/main/resources/application.yml` 설정
+3. 의존성 설치: `npm run install-all`
+
+## 🚀 배포
+
+```bash
+# 프론트엔드 빌드
+npm run build
+
+# 백엔드 빌드
+./gradlew build
+```
+
+## 📝 라이선스
+
+이 프로젝트는 MIT 라이선스 하에 배포됩니다.
+

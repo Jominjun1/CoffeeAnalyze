@@ -1,5 +1,20 @@
 {
+  "name": "coffee-analyze",
+  "version": "1.0.0",
+  "description": "Coffee Analysis Project",
+  "scripts": {
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
+    "backend": "cd . && ./gradlew bootRun",
+    "frontend": "cd frontend && npm run dev",
+    "install-all": "npm install && cd frontend && npm install",
+    "build": "cd frontend && npm run build",
+    "start": "npm run dev"
+  },
   "dependencies": {
-    "pinia": "^3.0.3"
+    "pinia": "^3.0.3",
+    "concurrently": "^8.2.2"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
   }
 }
