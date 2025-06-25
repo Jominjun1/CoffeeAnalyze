@@ -47,10 +47,8 @@
             <option value="디저트">디저트</option>
             <option value="음식">음식</option>
           </select>
-        </div>
-        <div class="search-buttons">
           <button @click="onSearch" :disabled="isLoading" class="search-btn">검색</button>
-          <button @click="clearSearch" class="clear-btn">초기화</button>
+          <button v-if="searchQuery || selectedCategory" @click="clearSearch" class="clear-btn">초기화</button>
         </div>
       </div>
 
@@ -155,12 +153,12 @@
           <h3>🔐 관리자 로그인</h3>
           <form @submit.prevent="login" class="login-form">
             <div class="form-group">
-              <label for="adminId">아이디</label>
-              <input id="adminId" v-model="loginForm.adminId" type="text" placeholder="관리자 아이디를 입력하세요" required/>
+              <label for="admin_id">아이디</label>
+              <input id="admin_id" v-model="loginForm.admin_id" type="text" placeholder="관리자 아이디를 입력하세요" required/>
             </div>
             <div class="form-group">
-              <label for="password">비밀번호</label>
-              <input id="password" v-model="loginForm.password" type="password" placeholder="비밀번호를 입력하세요" required/>
+              <label for="admin_pw">비밀번호</label>
+              <input id="admin_pw" v-model="loginForm.admin_pw" type="password" placeholder="비밀번호를 입력하세요" required/>
             </div>
             <div class="modal-buttons">
               <button type="submit" :disabled="isLoggingIn" class="login-submit-btn">
@@ -178,44 +176,178 @@
     <template v-else>
       <div class="edit-section">
         <div class="edit-header">
-          <h2>✏️ 메뉴 다중 수정</h2>
+          <div class="edit-header-left">
+            <button class="help-btn" @click="showHelp = true" title="수정 절차 안내">
+              <span>❓</span>
+            </button>
+            <h2>✏️ 메뉴 다중 수정</h2>
+          </div>
         </div>
+        <div v-if="showHelp" class="help-modal-overlay" @click.self="showHelp = false">
+          <div class="help-modal">
+            <h3>📝 메뉴 다중 수정 절차 안내</h3>
+            <ol>
+              <li><b>항목 검색 및 선택</b><br>수정할 커피/디저트 이름을 검색하고, 원하는 항목을 체크하세요.</li>
+              <li><b>정보 수정</b><br>선택한 항목의 이름, 카테고리, 영양정보 등을 한 번에 수정할 수 있습니다.</li>
+              <li><b>저장</b><br>모든 수정을 마쳤으면 <b>저장(미리보기)</b> 버튼을 눌러주세요.<br><span style="color:#888">(실제 저장은 추후 구현 예정)</span></li>
+            </ol>
+            <button class="close-help-btn" @click="showHelp = false">닫기</button>
+          </div>
+        </div>
+        
         <div v-if="editFormData.length === 0">
           <!-- 검색 및 다중 선택 UI -->
           <div class="edit-search-section">
-            <input v-model="editSearchQuery" @keyup.enter="onEditSearch" placeholder="수정할 커피/디저트 이름을 입력하세요" class="search-input" />
-            <button @click="onEditSearch" class="search-btn">검색</button>
+            <div class="search-input-group">
+              <input 
+                v-model="editSearchQuery" 
+                @keyup.enter="onEditSearch" 
+                placeholder="수정할 커피/디저트 이름을 입력하세요" 
+                class="search-input" 
+              />
+              <button @click="onEditSearch" class="search-btn">🔍 검색</button>
+            </div>
+            <div class="search-tips">
+              💡 검색 팁: "아메리카노", "라떼", "카페" 등으로 검색해보세요
+            </div>
           </div>
+          
           <div v-if="editSearchResults.length > 0" class="edit-results-section">
-            <ul class="edit-results-list">
-              <li v-for="item in editSearchResults" :key="item.brand + item.name" class="edit-result-item">
-                <input type="checkbox" :id="'edit-' + item.brand + item.name" :checked="editSelectedItems.some(sel => sel.brand === item.brand && sel.name === item.name)" @change="toggleEditSelect(item)" />
-                <label :for="'edit-' + item.brand + item.name">
-                  <b>{{ item.brand }}</b> - {{ item.name }}
-                </label>
-              </li>
-            </ul>
-            <button :disabled="editSelectedItems.length === 0" @click="openEditForm" class="edit-btn">선택한 항목 수정</button>
-          </div>
-        </div>
-        <div v-else>
-          <!-- 다중 수정 폼 -->
-          <form @submit.prevent="saveEditForm">
-            <div v-for="(item, idx) in editFormData" :key="item.brand + item.name" class="edit-form-item">
-              <h4>{{ item.brand }} - {{ item.name }}</h4>
-              <div class="edit-form-fields">
-                <label>이름: <input v-model="item.name" @input="handleEditInput(idx, 'name', item.name)" /></label>
-                <label>카테고리(note): <input v-model="item.note" @input="handleEditInput(idx, 'note', item.note)" /></label>
-                <label>칼로리: <input v-model.number="item.ingredientDTO.kcal" @input="handleEditIngredientInput(idx, 'kcal', item.ingredientDTO.kcal)" type="number" /></label>
-                <label>카페인: <input v-model.number="item.ingredientDTO.caffeine" @input="handleEditIngredientInput(idx, 'caffeine', item.ingredientDTO.caffeine)" type="number" /></label>
-                <label>나트륨: <input v-model.number="item.ingredientDTO.sodium" @input="handleEditIngredientInput(idx, 'sodium', item.ingredientDTO.sodium)" type="number" /></label>
-                <label>당류: <input v-model.number="item.ingredientDTO.sugar" @input="handleEditIngredientInput(idx, 'sugar', item.ingredientDTO.sugar)" type="number" /></label>
-                <label>포화지방: <input v-model.number="item.ingredientDTO.saturatedFat" @input="handleEditIngredientInput(idx, 'saturatedFat', item.ingredientDTO.saturatedFat)" type="number" /></label>
-                <label>단백질: <input v-model.number="item.ingredientDTO.protein" @input="handleEditIngredientInput(idx, 'protein', item.ingredientDTO.protein)" type="number" /></label>
-                <label>알레르기: <input v-model="item.ingredientDTO.allergicIngredients" @input="handleEditIngredientInput(idx, 'allergicIngredients', item.ingredientDTO.allergicIngredients)" /></label>
+            <div class="results-header">
+              <h3>검색 결과 ({{ editSearchResults.length }}개)</h3>
+              <div class="selection-info">
+                <span v-if="editSelectedItems.length > 0" class="selected-count">
+                  선택됨: {{ editSelectedItems.length }}개
+                </span>
+                <button 
+                  v-if="editSelectedItems.length > 0" 
+                  @click="editSelectedItems = []" 
+                  class="clear-selection-btn"
+                >
+                  선택 해제
+                </button>
+                <button 
+                  :disabled="editSelectedItems.length === 0" 
+                  @click="openEditForm" 
+                  class="edit-proceed-btn"
+                >
+                  ✏️ 선택한 {{ editSelectedItems.length }}개 항목 수정하기
+                </button>
               </div>
             </div>
-            <button type="submit" class="save-btn">저장(미리보기)</button>
+            
+            <div class="edit-results-grid">
+              <div 
+                v-for="item in editSearchResults" 
+                :key="item.brand + item.name" 
+                class="edit-result-card"
+                :class="{ selected: editSelectedItems.some(sel => sel.brand === item.brand && sel.name === item.name) }"
+                @click="toggleEditSelect(item)"
+              >
+                <div class="card-header">
+                  <div class="brand-badge" :style="{ backgroundColor: getBrandColor(item.brand) }">
+                    {{ item.brand }}
+                  </div>
+                  <input 
+                    type="checkbox" 
+                    :id="'edit-' + item.brand + item.name" 
+                    :checked="editSelectedItems.some(sel => sel.brand === item.brand && sel.name === item.name)" 
+                    @change.stop="toggleEditSelect(item)" 
+                  />
+                </div>
+                <div class="card-content">
+                  <h4 class="item-name">{{ item.name }}</h4>
+                  <div class="item-details">
+                    <span class="category">{{ item.note || '카테고리 없음' }}</span>
+                    <div class="nutrition-preview">
+                      <span v-if="item.ingredientDTO?.kcal">🔥 {{ item.ingredientDTO.kcal }}kcal</span>
+                      <span v-if="item.ingredientDTO?.caffeine">☕ {{ item.ingredientDTO.caffeine }}mg</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div v-else-if="editSearchQuery && !isLoading" class="no-results">
+            <div class="no-results-content">
+              <span class="no-results-icon">🔍</span>
+              <h3>검색 결과가 없습니다</h3>
+              <p>다른 키워드로 검색해보세요</p>
+            </div>
+          </div>
+        </div>
+        
+        <div v-else>
+          <!-- 다중 수정 폼 -->
+          <div class="edit-form-header">
+            <h3>📝 {{ editFormData.length }}개 항목 수정</h3>
+            <button @click="editFormData = []" class="back-to-search-btn">← 검색으로 돌아가기</button>
+          </div>
+          
+          <form @submit.prevent="saveEditForm" class="edit-form">
+            <div v-for="(item, idx) in editFormData" :key="item.brand + item.name" class="edit-form-item">
+              <div class="form-item-header">
+                <div class="item-info">
+                  <div class="brand-badge" :style="{ backgroundColor: getBrandColor(item.brand) }">
+                    {{ item.brand }}
+                  </div>
+                  <h4>{{ item.name }}</h4>
+                </div>
+                <button type="button" @click="editFormData.splice(idx, 1)" class="remove-item-btn">🗑️</button>
+              </div>
+              
+              <div class="form-fields-grid">
+                <div class="field-group">
+                  <label>이름</label>
+                  <input v-model="item.name" @input="handleEditInput(idx, 'name', item.name)" placeholder="메뉴 이름" />
+                </div>
+                
+                <div class="field-group">
+                  <label>카테고리</label>
+                  <input v-model="item.note" @input="handleEditInput(idx, 'note', item.note)" placeholder="예: [음료], [푸드]" />
+                </div>
+                
+                <div class="field-group">
+                  <label>칼로리 (kcal)</label>
+                  <input v-model.number="item.ingredientDTO.kcal" @input="handleEditIngredientInput(idx, 'kcal', item.ingredientDTO.kcal)" type="number" placeholder="0" />
+                </div>
+                
+                <div class="field-group">
+                  <label>카페인 (mg)</label>
+                  <input v-model.number="item.ingredientDTO.caffeine" @input="handleEditIngredientInput(idx, 'caffeine', item.ingredientDTO.caffeine)" type="number" placeholder="0" />
+                </div>
+                
+                <div class="field-group">
+                  <label>나트륨 (mg)</label>
+                  <input v-model.number="item.ingredientDTO.sodium" @input="handleEditIngredientInput(idx, 'sodium', item.ingredientDTO.sodium)" type="number" placeholder="0" />
+                </div>
+                
+                <div class="field-group">
+                  <label>당류 (g)</label>
+                  <input v-model.number="item.ingredientDTO.sugar" @input="handleEditIngredientInput(idx, 'sugar', item.ingredientDTO.sugar)" type="number" placeholder="0" />
+                </div>
+                
+                <div class="field-group">
+                  <label>포화지방 (g)</label>
+                  <input v-model.number="item.ingredientDTO.saturatedFat" @input="handleEditIngredientInput(idx, 'saturatedFat', item.ingredientDTO.saturatedFat)" type="number" placeholder="0" />
+                </div>
+                
+                <div class="field-group">
+                  <label>단백질 (g)</label>
+                  <input v-model.number="item.ingredientDTO.protein" @input="handleEditIngredientInput(idx, 'protein', item.ingredientDTO.protein)" type="number" placeholder="0" />
+                </div>
+                
+                <div class="field-group full-width">
+                  <label>알레르기 정보</label>
+                  <input v-model="item.ingredientDTO.allergicIngredients" @input="handleEditIngredientInput(idx, 'allergicIngredients', item.ingredientDTO.allergicIngredients)" placeholder="예: 우유, 견과류" />
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <button type="submit" class="save-btn">💾 저장 (미리보기)</button>
+            </div>
           </form>
         </div>
       </div>
@@ -252,8 +384,8 @@ const showLogin = ref(false);
 const isLoggingIn = ref(false);
 const loginError = ref('');
 const loginForm = ref({
-  adminId: '',
-  password: ''
+  admin_id: '',
+  admin_pw: ''
 });
 
 // 서브메뉴 상태
@@ -269,6 +401,7 @@ const editSearchResults = ref([]);
 const editSelectedItems = ref([]);
 const showEditModal = ref(false);
 const editFormData = ref([]);
+const showHelp = ref(false);
 
 // 로그인 상태 확인
 const checkLoginStatus = () => {
@@ -332,54 +465,44 @@ function onSearch() {
 function showLoginModal() {
   showLogin.value = true;
   loginError.value = '';
-  loginForm.value = { adminId: '', password: '' };
+  loginForm.value = { admin_id: '', admin_pw: '' };
 }
 
 function closeLoginModal() {
   showLogin.value = false;
   loginError.value = '';
-  loginForm.value = { adminId: '', password: '' };
+  loginForm.value = { admin_id: '', admin_pw: '' };
 }
 
 async function login() {
-  if (!loginForm.value.adminId || !loginForm.value.password) {
-    loginError.value = '아이디와 비밀번호를 모두 입력해주세요.';
-    return;
-  }
-
   isLoggingIn.value = true;
   loginError.value = '';
-
+  
   try {
     const response = await fetch('http://localhost:8080/admin/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        admin_id: loginForm.value.adminId,
-        admin_pw: loginForm.value.password
-      })
+      body: JSON.stringify(loginForm.value)
     });
 
     if (response.ok) {
       const data = await response.json();
-      if (data.token) {
-        // 토큰을 로컬 스토리지에 저장
-        localStorage.setItem('adminToken', data.token);
-        // 로그인 상태 업데이트
-        coffeeStore.setAdminLoggedIn(true);
-        alert('로그인 성공!');
-        closeLoginModal();
-      } else {
-        loginError.value = '로그인에 실패했습니다.';
-      }
+      localStorage.setItem('adminToken', data.token);
+      coffeeStore.setAdminLoggedIn(true);
+      showLogin.value = false;
+      loginForm.value = { admin_id: '', admin_pw: '' };
+      window.showToast('success', '로그인 성공!', '관리자 모드가 활성화되었습니다.');
     } else {
-      loginError.value = '아이디 또는 비밀번호가 올바르지 않습니다.';
+      const errorData = await response.json();
+      loginError.value = errorData.message || '로그인에 실패했습니다.';
+      window.showToast('error', '로그인 실패', loginError.value);
     }
   } catch (error) {
     console.error('로그인 오류:', error);
     loginError.value = '로그인 중 오류가 발생했습니다.';
+    window.showToast('error', '로그인 오류', '네트워크 연결을 확인해주세요.');
   } finally {
     isLoggingIn.value = false;
   }
@@ -482,16 +605,16 @@ function toggleUpdateMenu() {
 async function startCrawling(brand) {
   const token = localStorage.getItem('adminToken');
   if (!token) {
-    alert('로그인이 필요합니다.');
+    window.showToast('warning', '로그인 필요', '관리자 로그인이 필요합니다.');
     return;
   }
 
+  coffeeStore.setCrawling(true);
+  showUpdateMenu.value = false;
+
   try {
-    coffeeStore.setCrawling(true);
-    showUpdateMenu.value = false; // 서브메뉴 닫기
-    
-    const response = await fetch(`http://localhost:8080/craw/${brand}`, {
-      method: 'GET',
+    const response = await fetch(`http://localhost:8080/admin/crawl/${brand}`, {
+      method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
@@ -500,14 +623,14 @@ async function startCrawling(brand) {
 
     if (response.ok) {
       const result = await response.text();
-      alert(`${getBrandName(brand)} 크롤링이 완료되었습니다.`);
+      window.showToast('success', '크롤링 완료', `${getBrandName(brand)} 메뉴가 업데이트되었습니다.`);
     } else {
       const errorData = await response.text();
-      alert(`${getBrandName(brand)} 크롤링 실패: ${errorData}`);
+      window.showToast('error', '크롤링 실패', `${getBrandName(brand)}: ${errorData}`);
     }
   } catch (error) {
     console.error('크롤링 오류:', error);
-    alert(`${getBrandName(brand)} 크롤링 중 오류가 발생했습니다.`);
+    window.showToast('error', '크롤링 오류', `${getBrandName(brand)} 크롤링 중 오류가 발생했습니다.`);
   } finally {
     coffeeStore.setCrawling(false);
   }
@@ -549,7 +672,7 @@ async function logout() {
     // 서브메뉴 닫기
     showUpdateMenu.value = false;
     
-    alert('로그아웃되었습니다.');
+    window.showToast('info', '로그아웃', '로그아웃되었습니다.');
   }
 }
 
@@ -622,14 +745,13 @@ function handleEditIngredientInput(idx, key, value) {
 function saveEditForm() {
   // 실제 저장은 하지 않고, 콘솔에 미리보기만 출력
   console.log('수정될 데이터:', JSON.parse(JSON.stringify(editFormData.value)));
-  alert('저장 미리보기(콘솔 확인)');
+  window.showToast('info', '저장 미리보기', '콘솔에서 수정 데이터를 확인하세요.');
   // 이후 4단계에서 실제 저장 연동
 }
 </script>
 
 <style scoped>
 .edit-section {
-  /* 모달 스타일 제거: 페이지 전체를 넓게 사용 */
   background: none;
   border-radius: 0;
   max-width: none;
@@ -637,83 +759,540 @@ function saveEditForm() {
   padding: 0;
   box-shadow: none;
   position: static;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
+
 .edit-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e0e6ed;
+  width: 100%;
+  max-width: 800px;
+}
+
+.edit-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.help-btn {
+  background: #e0e6ed;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  margin-right: 0.5rem;
+}
+
+.help-btn:hover {
+  background: #667eea;
+  color: #fff;
+}
+
+.edit-header h2 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.8rem;
+}
+
+.edit-search-section {
+  margin-bottom: 2rem;
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-input-group {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.search-input-group .search-input {
+  flex: 1;
+  max-width: 400px;
+}
+
+.search-input-group .search-btn {
+  flex-shrink: 0;
+}
+
+.search-tips {
+  color: #6c757d;
+  font-size: 0.9rem;
+  font-style: italic;
+  text-align: center;
+  width: 100%;
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 1rem;
+}
+
+.results-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.3rem;
+}
+
+.selection-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.selected-count {
+  color: #667eea;
+  font-weight: 600;
+}
+
+.clear-selection-btn {
+  background: #e0e6ed;
+  color: #6c757d;
+  border: none;
+  border-radius: 15px;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.clear-selection-btn:hover {
+  background: #cbd5e0;
+}
+
+.edit-proceed-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  white-space: nowrap;
+}
+
+.edit-proceed-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.edit-proceed-btn:disabled {
+  background: #bdc3c7;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.edit-results-section {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.edit-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  justify-items: center;
+}
+
+.edit-result-card {
+  background: white;
+  border: 2px solid #e0e6ed;
+  border-radius: 15px;
+  padding: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.edit-result-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.edit-result-card.selected {
+  border-color: #667eea;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+}
+
+.card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
 }
-.edit-search-section {
-  display: flex;
-  gap: 0.8rem;
-  margin-bottom: 1rem;
-}
-.edit-results-section {
-  margin-top: 1rem;
-}
-.edit-results-list {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 1rem 0;
-}
-.edit-result-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0;
-}
-.edit-btn {
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e42 100%);
+
+.brand-badge {
   color: white;
-  border: none;
-  border-radius: 20px;
-  padding: 0.6rem 1.2rem;
-  font-size: 1rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 15px;
+  font-size: 0.8rem;
   font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
-.edit-btn:disabled {
-  background: #bdc3c7;
-  cursor: not-allowed;
+
+.card-header input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #667eea;
 }
-.edit-form-item {
-  background: #f8fafc;
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+
+.card-content h4 {
+  margin: 0 0 0.5rem 0;
+  color: #2c3e50;
+  font-size: 1.1rem;
 }
-.edit-form-fields label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-size: 0.95rem;
+
+.item-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
-.edit-form-fields input {
-  margin-left: 0.5rem;
-  padding: 0.3rem 0.7rem;
-  border: 1px solid #e0e6ed;
+
+.category {
+  color: #6c757d;
+  font-size: 0.9rem;
+  background: #f8f9fa;
+  padding: 0.2rem 0.5rem;
   border-radius: 8px;
-  font-size: 0.95rem;
+  display: inline-block;
+  width: fit-content;
 }
-.save-btn {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+
+.nutrition-preview {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.8rem;
+  color: #495057;
+}
+
+.nutrition-preview span {
+  background: #e9ecef;
+  padding: 0.2rem 0.5rem;
+  border-radius: 8px;
+}
+
+.edit-actions {
+  text-align: center;
+}
+
+.edit-proceed-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 20px;
-  padding: 0.7rem 1.5rem;
+  border-radius: 25px;
+  padding: 1rem 2rem;
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-  margin-top: 1rem;
-  width: 100%;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
-.save-btn:disabled {
+
+.edit-proceed-btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+}
+
+.edit-proceed-btn:disabled {
   background: #bdc3c7;
   cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.no-results {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.no-results-content {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.no-results-icon {
+  font-size: 4rem;
+  display: block;
+  margin-bottom: 1rem;
+}
+
+.no-results h3 {
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+}
+
+.no-results p {
+  color: #adb5bd;
+}
+
+.edit-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e0e6ed;
+}
+
+.edit-form-header h3 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+}
+
+.back-to-search-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 0.6rem 1.2rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-to-search-btn:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1200px;
+  align-items: center;
+}
+
+.edit-form-item {
+  background: white;
+  border-radius: 15px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border: 1px solid #e0e6ed;
+  width: 100%;
+}
+
+.form-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e6ed;
+}
+
+.item-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.item-info h4 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.2rem;
+}
+
+.remove-item-btn {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.remove-item-btn:hover {
+  background: #c0392b;
+  transform: scale(1.1);
+}
+
+.form-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.field-group label {
+  font-weight: 600;
+  color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+.field-group input {
+  padding: 0.8rem;
+  border: 2px solid #e0e6ed;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+}
+
+.field-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-actions {
+  text-align: center;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid #e0e6ed;
+}
+
+.save-btn {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 1rem 3rem;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+}
+
+.help-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.25);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.help-modal {
+  background: #fff;
+  border-radius: 18px;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 8px 32px rgba(44,62,80,0.18);
+  max-width: 400px;
+  width: 90vw;
+  text-align: left;
+  position: relative;
+}
+
+.help-modal h3 {
+  margin-top: 0;
+  margin-bottom: 1.2rem;
+  color: #232946;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.help-modal ol {
+  padding-left: 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.help-modal li {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  color: #232946;
+}
+
+.close-help-btn {
+  background: #667eea;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 0.6rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: block;
+  margin: 0 auto;
+}
+
+.close-help-btn:hover {
+  background: #764ba2;
+}
+
+@media (max-width: 768px) {
+  .edit-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .edit-results-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-fields-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .results-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
 }
 </style> 

@@ -1,9 +1,11 @@
 <script setup>
 import CoffeeCompare from './components/CoffeeCompare.vue'
+import Toast from './components/Toast.vue'
 </script>
 
 <template>
   <CoffeeCompare />
+  <Toast />
 </template>
 
 <style scoped>
