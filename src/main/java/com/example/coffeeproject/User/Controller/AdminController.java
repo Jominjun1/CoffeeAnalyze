@@ -37,7 +37,7 @@ public class AdminController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@Valid @RequestBody Admin admin) {
         if (admin == null) {
-            return ResponseEntity.badRequest().body("로그인 정보가 없습니다.");
+            return ResponseEntity.badRequest().body("로그인 정보 없음");
         }
         return adminService.login(admin);
     }
@@ -45,7 +45,7 @@ public class AdminController {
     // 관리자 로그아웃 API
     @PostMapping("/logout")
     public ResponseEntity<String> logout() {
-        return ResponseEntity.ok("로그아웃되었습니다.");
+        return ResponseEntity.ok("로그아웃 완료");
     }
     
     // 현재 로그인된 관리자 정보 확인 API
@@ -69,14 +69,14 @@ public class AdminController {
     @PostMapping("/encrypt-passwords")
     public ResponseEntity<String> encryptAllPasswords() {
         passwordEncryptor.encryptAllAdminPasswords();
-        return ResponseEntity.ok("모든 관리자 비밀번호가 암호화되었습니다.");
+        return ResponseEntity.ok("암호화 완료");
     }
     
     // 개발용: 특정 관리자 비밀번호 암호화 API
     @PostMapping("/encrypt-password/{adminId}")
     public ResponseEntity<String> encryptPassword(@PathVariable String adminId) {
         passwordEncryptor.encryptAdminPassword(adminId);
-        return ResponseEntity.ok("관리자 '" + adminId + "' 비밀번호가 암호화되었습니다.");
+        return ResponseEntity.ok("관리자 '" + adminId + "' 비밀번호 암호화");
     }
     
     // 크롤링 시작 API

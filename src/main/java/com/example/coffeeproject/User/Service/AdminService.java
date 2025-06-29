@@ -37,16 +37,13 @@ public class AdminService {
         Optional<Admin> foundAdmin = adminRepository.findById(admin.getAdmin_id());
         if (foundAdmin.isPresent()) {
             Admin existingAdmin = foundAdmin.get();
-            
-            // 비밀번호 검증 (BCrypt 또는 평문 비교)
+
             boolean passwordMatches = false;
             String storedPassword = existingAdmin.getAdmin_pw();
             
             if (storedPassword.startsWith("$2a$")) {
-                // BCrypt로 암호화된 비밀번호
                 passwordMatches = passwordEncoder.matches(admin.getAdmin_pw(), storedPassword);
             } else {
-                // 평문 비밀번호 (임시 처리)
                 passwordMatches = admin.getAdmin_pw().equals(storedPassword);
             }
             

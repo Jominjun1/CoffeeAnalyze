@@ -18,6 +18,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.*;
 
 @Service
@@ -28,6 +31,7 @@ public class CoffeeService {
     private final MegaRepository  megaRepository;
     private final WebDriverConfig webDriverConfig;
     private final EDIYARepository eDIYARepository;
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
     @Autowired
     public CoffeeService(IngredientRepository ingredientRepository, PaiksRepository paiksRepository,
@@ -206,6 +210,7 @@ public class CoffeeService {
 
                 while (true) {
                     int itemCount = webDriver.findElements(By.cssSelector("ul#menu_list > li")).size();
+                    scheduler.schedule(() -> {
                     for (int i = 0; i < itemCount; i++) {
                         try {
                             List<WebElement> items = webDriver.findElements(By.cssSelector("ul#menu_list > li"));
@@ -213,7 +218,6 @@ public class CoffeeService {
 
                             Actions actions = new Actions(webDriver);
                             actions.moveToElement(item).perform();
-                            Thread.sleep(300);
 
                             WebElement innerDiv = item.findElement(By.cssSelector("div.inner_modal"));
                             JavascriptExecutor js = (JavascriptExecutor) webDriver;
@@ -320,7 +324,7 @@ public class CoffeeService {
                         } catch (Exception e) {
                             System.out.println("모달 크롤링 실패: " + e.getMessage());
                         }
-                    }
+                    }}, 1, TimeUnit.SECONDS);
 
                     List<WebElement> pageLinks = webDriver.findElements(By.cssSelector("ul#board_page > li > a.board_page_link"));
                     if (currentPage < pageLinks.size()) {
@@ -391,7 +395,6 @@ public class CoffeeService {
                         WebElement moreBtn = webDriver.findElement(By.cssSelector("a.line_btn"));
                         if (moreBtn.isDisplayed()) {
                             ((JavascriptExecutor) webDriver).executeScript("arguments[0].click();", moreBtn);
-                            Thread.sleep(1000);
                         } else {break;}
                     } catch (NoSuchElementException e) {break;}
                 }
@@ -408,13 +411,12 @@ public class CoffeeService {
 
                         WebElement li = (WebElement) ((JavascriptExecutor) webDriver).executeScript("arguments[0].click(); return arguments[0].parentElement;", item);
 
-                        Thread.sleep(300);
 
                         WebElement h2 = li.findElement(By.cssSelector("div.detail_con > h2"));
                         String engName = "";
                         try {
                             engName = h2.findElement(By.tagName("span")).getText().trim();
-                        } catch (NoSuchElementException e) {}
+                        } catch (NoSuchElementException ignored) {}
                         String name = h2.getText().replace(engName, "").trim();
 
                         List<WebElement> pList = li.findElements(By.cssSelector("div.detail_con > div.detail_txt > p"));

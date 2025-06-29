@@ -37,32 +37,32 @@ public class UserService {
         for (String variation : searchVariations) {
             for (MegaCoffee m : megaRepository.findByNameContainingIgnoreCase(variation)) {
                 CoffeeDTO dto = mapToDTO(m);
-                if (!isDuplicate(coffees, dto)) {coffees.add(dto);}
+                if (isDuplicate(coffees, dto)) {coffees.add(dto);}
             }
 
             for (PaiksCoffee p : paiksRepository.findByNameContainingIgnoreCase(variation)) {
                 CoffeeDTO dto = mapToDTO(p);
-                if (!isDuplicate(coffees, dto)) {coffees.add(dto);}
+                if (isDuplicate(coffees, dto)) {coffees.add(dto);}
             }
 
             for (EDIYACoffee e : ediyaRepository.findByNameContainingIgnoreCase(variation)) {
                 CoffeeDTO dto = mapToDTO(e);
-                if (!isDuplicate(coffees, dto)) {coffees.add(dto);}
+                if (isDuplicate(coffees, dto)) {coffees.add(dto);}
             }
 
             for (ComposeCoffee c : composeRepository.findByNameContainingIgnoreCase(variation)) {
                 CoffeeDTO dto = mapToDTO(c);
-                if (!isDuplicate(coffees, dto)) {coffees.add(dto);}
+                if (isDuplicate(coffees, dto)) {coffees.add(dto);}
             }
 
             for (Starbucks s : starbucksRepository.findByNameContainingIgnoreCase(variation)) {
                 CoffeeDTO dto = mapToDTO(s);
-                if (!isDuplicate(coffees, dto)) {coffees.add(dto);}
+                if (isDuplicate(coffees, dto)) {coffees.add(dto);}
             }
 
             for (ATwosomePlace a : atwosomePlaceRepository.findByNameContainingIgnoreCase(variation)) {
                 CoffeeDTO dto = mapToDTO(a);
-                if (!isDuplicate(coffees, dto)) {coffees.add(dto);}
+                if (isDuplicate(coffees, dto)) {coffees.add(dto);}
             }
         }
         return coffees;
@@ -91,7 +91,7 @@ public class UserService {
     }
 
     private boolean isDuplicate(List<CoffeeDTO> coffees, CoffeeDTO newCoffee) {
-        return coffees.stream().anyMatch(existing -> existing.getBrand().equals(newCoffee.getBrand()) && existing.getName().equals(newCoffee.getName()));
+        return coffees.stream().noneMatch(existing -> existing.getBrand().equals(newCoffee.getBrand()) && existing.getName().equals(newCoffee.getName()));
     }
 
     private CoffeeDTO mapToDTO(MegaCoffee m) {
