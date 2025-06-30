@@ -199,23 +199,23 @@ start-dev.bat
 ## 📸 스크린샷
 
 ### 메인 화면
-![메인 화면](screenshots/main.png)
+![메인 화면]()
 *커피 검색 및 비교 메인 화면*
 
 ### 검색 결과
-![검색 결과](screenshots/search.png)
+![검색 결과]()
 *커피 검색 결과 및 선택 화면*
 
 ### 비교 결과 모달
-![비교 결과](screenshots/compare.png)
+![비교 결과]()
 *커피 영양 정보 비교 모달*
 
 ### 관리자 로그인
-![관리자 로그인](screenshots/admin-login.png)
+![관리자 로그인]()
 *관리자 로그인 화면*
 
 ### 관리자 메뉴
-![관리자 메뉴](screenshots/admin-menu.png)
+![관리자 메뉴]()
 *통합 관리자 메뉴 드롭다운*
 
 
