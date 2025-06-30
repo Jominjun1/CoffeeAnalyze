@@ -210,7 +210,6 @@ public class CoffeeService {
 
                 while (true) {
                     int itemCount = webDriver.findElements(By.cssSelector("ul#menu_list > li")).size();
-                    scheduler.schedule(() -> {
                     for (int i = 0; i < itemCount; i++) {
                         try {
                             List<WebElement> items = webDriver.findElements(By.cssSelector("ul#menu_list > li"));
@@ -324,7 +323,7 @@ public class CoffeeService {
                         } catch (Exception e) {
                             System.out.println("모달 크롤링 실패: " + e.getMessage());
                         }
-                    }}, 1, TimeUnit.SECONDS);
+                    }
 
                     List<WebElement> pageLinks = webDriver.findElements(By.cssSelector("ul#board_page > li > a.board_page_link"));
                     if (currentPage < pageLinks.size()) {
@@ -339,6 +338,8 @@ public class CoffeeService {
             }
         } catch (Exception e) {
             System.out.println("크롤링 실패: " + e.getMessage());
+        } finally{
+            webDriver.quit();
         }
     }
 
@@ -375,6 +376,8 @@ public class CoffeeService {
             }
         }catch(Exception e){
             System.out.println("오류: " + e.getMessage());
+        } finally{
+            webDriver.quit();
         }
     }
     public void crawlEdiya() {
@@ -565,6 +568,8 @@ public class CoffeeService {
 
         } catch (Exception e) {
                     System.out.println("항목 처리 중 오류: " + e.getMessage());
+        } finally{
+            webDriver.quit();
         }
     }
 

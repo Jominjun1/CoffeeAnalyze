@@ -95,22 +95,28 @@ public class UserService {
     }
 
     private CoffeeDTO mapToDTO(MegaCoffee m) {
-        return new CoffeeDTO("메가커피", m.getName(), m.getEng_name(), m.getNote(), m.getImageUrl(), toIngredientDTO(m.getIngredients()));
+        String size = m.getOunce() > 0 ? String.format("%.1fml", m.getOunce()) : "";
+        return new CoffeeDTO("메가커피", m.getName(), m.getEng_name(), m.getNote(), m.getImageUrl(), size, toIngredientDTO(m.getIngredients()));
     }
     private CoffeeDTO mapToDTO(PaiksCoffee p) {
-        return new CoffeeDTO("빽다방", p.getName(), p.getEng_name(), p.getNote(), p.getImageUrl(), toIngredientDTO(p.getIngredients()));
+        String size = p.getOunce() > 0 ? String.format("%.1fml", p.getOunce()) : "";
+        return new CoffeeDTO("빽다방", p.getName(), p.getEng_name(), p.getNote(), p.getImageUrl(), size, toIngredientDTO(p.getIngredients()));
     }
     private CoffeeDTO mapToDTO(EDIYACoffee e) {
-        return new CoffeeDTO("이디야", e.getName(), e.getEng_name(), e.getNote(), e.getImageUrl(), toIngredientDTO(e.getIngredients()));
+        String size = e.getOunce() > 0 ? String.format("%.1fml", e.getOunce()) : "";
+        return new CoffeeDTO("이디야", e.getName(), e.getEng_name(), e.getNote(), e.getImageUrl(), size, toIngredientDTO(e.getIngredients()));
     }
     private CoffeeDTO mapToDTO(Starbucks s) {
-        return new CoffeeDTO("스타벅스", s.getName(), s.getEng_name(), s.getNote(), s.getImageUrl(), toIngredientDTO(s.getIngredients()));
+        String size = s.getOunce() > 0 ? String.format("%.1fml", s.getOunce()) : "";
+        return new CoffeeDTO("스타벅스", s.getName(), s.getEng_name(), s.getNote(), s.getImageUrl(), size, toIngredientDTO(s.getIngredients()));
     }
     private CoffeeDTO mapToDTO(ComposeCoffee c) {
-        return new CoffeeDTO("컴포즈", c.getName(), c.getEng_name(), c.getNote(), c.getImageUrl(), toIngredientDTO(c.getIngredients()));
+        String size = c.getOunce() > 0 ? String.format("%.1fml", c.getOunce()) : "";
+        return new CoffeeDTO("컴포즈", c.getName(), c.getEng_name(), c.getNote(), c.getImageUrl(), size, toIngredientDTO(c.getIngredients()));
     }
     private CoffeeDTO mapToDTO(ATwosomePlace a) {
-        return new CoffeeDTO("투썸", a.getName(), a.getEng_name(), a.getNote(), a.getImageUrl(), toIngredientDTO(a.getIngredients()));
+        String size = a.getOunce() > 0 ? String.format("%.1fml", a.getOunce()) : "";
+        return new CoffeeDTO("투썸", a.getName(), a.getEng_name(), a.getNote(), a.getImageUrl(), size, toIngredientDTO(a.getIngredients()));
     }
     private IngredientDTO toIngredientDTO(Ingredient ing) {
         return new IngredientDTO(ing.getKcal(), ing.getSaturated_fat(), ing.getSodium(), ing.getProtein(), ing.getCaffeine(), ing.getSugar(), ing.getAllergic_ingredients());
