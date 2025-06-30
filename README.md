@@ -19,7 +19,7 @@
 - [설치 및 실행](#설치-및-실행)
 - [사용법](#사용법)
 - [API 문서](#api-문서)
-- [최근 업데이트](#최근-업데이트)
+- [스크린샷](#스크린샷)
 
 ## 🎯 프로젝트 개요
 
@@ -196,43 +196,28 @@ start-dev.bat
 - `GET /craw/ediya` - 이디야 크롤링
 - `GET /craw/compose` - 컴포즈커피 크롤링
 
-## 🆕 최근 업데이트
+## 📸 스크린샷
 
-### v2.1.0 (2024년)
-- ✅ **용량 정보 표시**: 각 메뉴의 용량(ml) 정보 추가
-- ✅ **세션 관리 개선**: localStorage → sessionStorage로 변경하여 페이지 닫기 시 자동 로그아웃
-- ✅ **다중 수정 기능**: 여러 메뉴를 동시에 수정할 수 있는 관리 도구 추가
-- ✅ **토스트 알림 시스템**: 사용자 친화적인 알림 시스템 구현
-- ✅ **통합 관리자 메뉴**: 드롭다운 형태의 직관적인 관리자 인터페이스
-- ✅ **검색 결과 정렬**: 정확도 기반 검색 결과 정렬 (정확 일치 → 시작 일치 → 알파벳 순)
-- ✅ **선택 토글 기능**: 커피 선택 시 클릭으로 토글되는 방식으로 개선
-- ✅ **반응형 개선**: 검색 결과의 반응형 카드 레이아웃 적용
-- ✅ **UI/UX 개선**: 선택 상태 표시, 버튼 스타일링, 모달 레이아웃 개선
+### 메인 화면
+![메인 화면](screenshots/main.png)
+*커피 검색 및 비교 메인 화면*
 
-### v2.0.0 (2024년)
-- ✅ **JWT 인증 시스템**: 안전한 관리자 로그인 구현
-- ✅ **웹 크롤링**: Selenium을 활용한 자동 메뉴 업데이트
-- ✅ **다중 브랜드 지원**: 6개 주요 커피 브랜드 지원
-- ✅ **영양 정보 비교**: 상세한 영양 성분 분석
-- ✅ **반응형 디자인**: 모바일/데스크톱 최적화
+### 검색 결과
+![검색 결과](screenshots/search.png)
+*커피 검색 결과 및 선택 화면*
 
-## 🤝 기여하기
+### 비교 결과 모달
+![비교 결과](screenshots/compare.png)
+*커피 영양 정보 비교 모달*
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+### 관리자 로그인
+![관리자 로그인](screenshots/admin-login.png)
+*관리자 로그인 화면*
 
-## 📄 라이선스
+### 관리자 메뉴
+![관리자 메뉴](screenshots/admin-menu.png)
+*통합 관리자 메뉴 드롭다운*
 
-이 프로젝트는 MIT 라이선스 하에 배포됩니다. 자세한 내용은 `LICENSE` 파일을 참조하세요.
-
-## 📞 문의
-
-프로젝트에 대한 문의사항이 있으시면 이슈를 생성해 주세요.
-
----
 
 <div align="center">
 
