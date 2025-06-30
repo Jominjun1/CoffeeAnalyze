@@ -119,7 +119,15 @@ public class UserService {
         return new CoffeeDTO("투썸", a.getName(), a.getEng_name(), a.getNote(), a.getImageUrl(), size, toIngredientDTO(a.getIngredients()));
     }
     private IngredientDTO toIngredientDTO(Ingredient ing) {
-        return new IngredientDTO(ing.getKcal(), ing.getSaturated_fat(), ing.getSodium(), ing.getProtein(), ing.getCaffeine(), ing.getSugar(), ing.getAllergic_ingredients());
+        String allergicIngredients = ing.getAllergic_ingredients();
+        if (allergicIngredients == null || 
+            allergicIngredients.trim().isEmpty() || 
+            allergicIngredients.equals("알레르기 정보 없음") ||
+            allergicIngredients.equals("알레르기 성분:") ||
+            allergicIngredients.equals("알레르기 성분 :")) {
+            allergicIngredients = "";
+        }
+        return new IngredientDTO(ing.getKcal(), ing.getSaturated_fat(), ing.getSodium(), ing.getProtein(), ing.getCaffeine(), ing.getSugar(), allergicIngredients);
     }
 
     public void updateCoffees(List<CoffeeDTO> coffeeUpdates) {

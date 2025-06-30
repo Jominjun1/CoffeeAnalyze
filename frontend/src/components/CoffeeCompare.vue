@@ -78,12 +78,19 @@
           <button @click="onSearch" :disabled="isLoading" class="search-btn">검색</button>
           <button v-if="groupedResults.length > 0" @click="clearSearch" class="clear-btn">초기화</button>
         </div>
+        <div class="search-tips">
+          💡 검색 팁: "아메리카노", "라떼", "카페" 등으로 검색해보세요
+        </div>
       </div>
 
       <!-- 로딩 및 빈 상태 -->
       <div v-if="isLoading" class="loading-spinner">검색 중...</div>
-      <div v-if="!isLoading && groupedResults.length === 0 && searchQuery" class="empty-msg">
-        검색 결과가 없습니다.
+      <div v-else-if="!isLoading && groupedResults.length === 0 && searchQuery" class="no-results">
+        <div class="no-results-content">
+          <span class="no-results-icon">🔍</span>
+          <h3>검색 결과가 없습니다</h3>
+          <p>다른 키워드로 검색해보세요</p>
+        </div>
       </div>
 
       <!-- 검색 결과 (매장별 분리) -->
@@ -215,12 +222,12 @@
       <div class="edit-section">
         <div class="edit-header">
           <div class="edit-header-left">
+            <h2>✏️ {{ isMultiEditMode ? '메뉴 다중 수정' : '메뉴 수정' }}</h2>
             <button class="help-btn" @click="showHelp = true" title="수정 절차 안내">
               <span>❓</span>
             </button>
-            <h2>✏️ {{ isMultiEditMode ? '메뉴 다중 수정' : '메뉴 수정' }}</h2>
           </div>
-          <div class="edit-mode-toggle">
+          <div class="edit-header-right">
             <button 
               @click="toggleEditMode" 
               class="mode-toggle-btn"
@@ -234,13 +241,13 @@
           <div class="help-modal">
             <h3>📝 {{ isMultiEditMode ? '메뉴 다중 수정' : '메뉴 수정' }} 절차 안내</h3>
             <ol v-if="isMultiEditMode">
-              <li><b>항목 검색 및 선택</b><br>수정할 커피/디저트 이름을 검색하고, 원하는 항목을 체크하세요.</li>
-              <li><b>정보 수정</b><br>선택한 항목의 이름, 카테고리, 영양정보 등을 한 번에 수정할 수 있습니다.</li>
+              <li><b>항목 검색 및 선택</b><br>수정할 커피/디저트 이름을 검색하고, 원하는 항목들을 체크하세요.</li>
+              <li><b>정보 수정</b><br>선택한 항목들의 이름, 카테고리, 영양정보 등을 한 번에 수정할 수 있습니다.</li>
               <li><b>저장</b><br>모든 수정을 마쳤으면 <b>저장(미리보기)</b> 버튼을 눌러주세요.<br><span style="color:#888">(실제 저장은 추후 구현 예정)</span></li>
             </ol>
             <ol v-else>
               <li><b>항목 검색</b><br>수정할 커피/디저트 이름을 검색하세요.</li>
-              <li><b>항목 선택</b><br>검색 결과에서 수정할 항목을 선택하세요.</li>
+              <li><b>항목 선택</b><br>검색 결과에서 수정할 항목을 하나 선택하세요.</li>
               <li><b>정보 수정</b><br>선택한 항목의 정보를 수정하세요.</li>
               <li><b>저장</b><br>수정을 마쳤으면 <b>저장(미리보기)</b> 버튼을 눌러주세요.</li>
             </ol>
@@ -273,13 +280,14 @@
                   선택됨: {{ editSelectedItems.length }}개
                 </span>
                 <button 
-                  v-if="editSelectedItems.length > 0" 
+                  v-if="editSelectedItems.length > 0 && isMultiEditMode" 
                   @click="editSelectedItems = []" 
                   class="clear-selection-btn"
                 >
                   선택 해제
                 </button>
                 <button 
+                  v-if="isMultiEditMode"
                   :disabled="editSelectedItems.length === 0" 
                   @click="openEditForm" 
                   class="edit-proceed-btn"
@@ -289,35 +297,24 @@
               </div>
             </div>
             
-            <div class="edit-results-grid">
-              <div 
-                v-for="item in editSearchResults" 
-                :key="item.brand + item.name" 
-                class="edit-result-card"
-                :class="{ selected: editSelectedItems.some(sel => sel.brand === item.brand && sel.name === item.name) }"
-                @click="toggleEditSelect(item)"
-              >
-                <div class="card-header">
-                  <div class="brand-badge" :style="{ backgroundColor: getBrandColor(item.brand) }">
-                    {{ item.brand }}
-                  </div>
-                  <input 
-                    type="checkbox" 
-                    :id="'edit-' + item.brand + item.name" 
-                    :checked="editSelectedItems.some(sel => sel.brand === item.brand && sel.name === item.name)" 
-                    @change.stop="toggleEditSelect(item)" 
-                  />
-                </div>
-                <div class="card-content">
-                  <h4 class="item-name">{{ item.name }}</h4>
-                  <div class="item-details">
-                    <span class="category">{{ item.note || '카테고리 없음' }}</span>
-                    <div class="nutrition-preview">
-                      <span v-if="item.ingredientDTO?.kcal">🔥 {{ item.ingredientDTO.kcal }}kcal</span>
-                      <span v-if="item.ingredientDTO?.caffeine">☕ {{ item.ingredientDTO.caffeine }}mg</span>
-                    </div>
-                  </div>
-                </div>
+            <div class="brand-sections">
+              <div v-for="brandGroup in groupedEditSearchResults" :key="brandGroup.brand" class="brand-section">
+                <h4 class="brand-title" :style="{ backgroundColor: getBrandColor(brandGroup.brand) }">
+                  {{ brandGroup.brand }} ({{ brandGroup.coffees.length }}개)
+                </h4>
+                <ul class="brand-results">
+                  <li v-for="coffee in brandGroup.coffees" :key="coffee.brand + coffee.name" class="result-item">
+                    <span class="coffee-name">{{ coffee.name }}</span>
+                    <button 
+                      @click="toggleEditSelect(coffee)" 
+                      class="select-btn" 
+                      :class="{ selected: isEditSelected(coffee) }"
+                      :disabled="!isMultiEditMode && editSelectedItems.length > 0 && !isEditSelected(coffee)"
+                    >
+                      {{ isEditSelected(coffee) ? '선택됨' : '선택' }}
+                    </button>
+                  </li>
+                </ul>
               </div>
             </div>
           </div>
@@ -335,71 +332,85 @@
           <!-- 수정 폼 -->
           <div class="edit-form-header">
             <h3>📝 {{ editFormData.length }}개 항목 수정</h3>
-            <button @click="editFormData = []" class="back-to-search-btn">← 검색으로 돌아가기</button>
+            <div class="edit-form-header-right">
+              <button @click="editFormData = []" class="back-to-search-btn">← 검색으로 돌아가기</button>
+            </div>
           </div>
           
           <form @submit.prevent="saveEditForm" class="edit-form">
-            <div v-for="(item, idx) in editFormData" :key="item.brand + item.name" class="edit-form-item">
-              <div class="form-item-header">
-                <div class="item-info">
-                  <div class="brand-badge" :style="{ backgroundColor: getBrandColor(item.brand) }">
-                    {{ item.brand }}
-                  </div>
-                  <h4>{{ item.name }}</h4>
-                </div>
-                <button type="button" @click="editFormData.splice(idx, 1)" class="remove-item-btn">🗑️</button>
-              </div>
-              
-              <div class="form-fields-grid">
-                <div class="field-group">
-                  <label>이름</label>
-                  <input v-model="item.name" @input="handleEditInput(idx, 'name', item.name)" placeholder="메뉴 이름" />
-                </div>
-                
-                <div class="field-group">
-                  <label>카테고리</label>
-                  <input v-model="item.note" @input="handleEditInput(idx, 'note', item.note)" placeholder="예: [음료], [푸드]" />
-                </div>
-                
-                <div class="field-group">
-                  <label>칼로리 (kcal)</label>
-                  <input v-model.number="item.ingredientDTO.kcal" @input="handleEditIngredientInput(idx, 'kcal', item.ingredientDTO.kcal)" type="number" step="0.1" placeholder="0" />
-                </div>
-                
-                <div class="field-group">
-                  <label>카페인 (mg)</label>
-                  <input v-model.number="item.ingredientDTO.caffeine" @input="handleEditIngredientInput(idx, 'caffeine', item.ingredientDTO.caffeine)" type="number" step="0.1" placeholder="0" />
-                </div>
-                
-                <div class="field-group">
-                  <label>나트륨 (mg)</label>
-                  <input v-model.number="item.ingredientDTO.sodium" @input="handleEditIngredientInput(idx, 'sodium', item.ingredientDTO.sodium)" type="number" step="0.1" placeholder="0" />
-                </div>
-                
-                <div class="field-group">
-                  <label>당류 (g)</label>
-                  <input v-model.number="item.ingredientDTO.sugar" @input="handleEditIngredientInput(idx, 'sugar', item.ingredientDTO.sugar)" type="number" step="0.1" placeholder="0" />
-                </div>
-                
-                <div class="field-group">
-                  <label>포화지방 (g)</label>
-                  <input v-model.number="item.ingredientDTO.saturatedFat" @input="handleEditIngredientInput(idx, 'saturatedFat', item.ingredientDTO.saturatedFat)" type="number" step="0.1" placeholder="0" />
-                </div>
-                
-                <div class="field-group">
-                  <label>단백질 (g)</label>
-                  <input v-model.number="item.ingredientDTO.protein" @input="handleEditIngredientInput(idx, 'protein', item.ingredientDTO.protein)" type="number" step="0.1" placeholder="0" />
-                </div>
-                
-                <div class="field-group full-width">
-                  <label>알레르기 정보</label>
-                  <input v-model="item.ingredientDTO.allergicIngredients" @input="handleEditIngredientInput(idx, 'allergicIngredients', item.ingredientDTO.allergicIngredients)" placeholder="예: 우유, 견과류" />
-                </div>
+            <div class="edit-results-container">
+              <div v-for="(group, brand) in groupedEditFormData" :key="brand" class="edit-brand-section">
+                <h4 class="edit-brand-title" :style="{ backgroundColor: getBrandColor(brand) }">
+                  {{ brand }} ({{ group.length }}개)
+                </h4>
+                <ul class="edit-brand-results">
+                  <li v-for="(item, idx) in group" :key="item.brand + item.name" class="edit-result-item">
+                    <div class="edit-item-content">
+                      <span class="edit-coffee-name">{{ item.name }}</span>
+                      <button type="button" @click="removeEditItem(brand, idx)" class="edit-remove-btn">×</button>
+                    </div>
+                    
+                    <div class="edit-fields">
+                      <div class="edit-field-row">
+                        <div class="edit-field-group">
+                          <label>이름</label>
+                          <input v-model="item.name" @input="handleEditInput(getItemIndex(brand, idx), 'name', item.name)" placeholder="메뉴 이름" />
+                        </div>
+                        
+                        <div class="edit-field-group">
+                          <label>카테고리</label>
+                          <input v-model="item.note" @input="handleEditInput(getItemIndex(brand, idx), 'note', item.note)" placeholder="예: [음료], [푸드]" />
+                        </div>
+                      </div>
+                      
+                      <div class="edit-field-row">
+                        <div class="edit-field-group">
+                          <label>칼로리 (kcal)</label>
+                          <input v-model.number="item.ingredientDTO.kcal" @input="handleEditIngredientInput(getItemIndex(brand, idx), 'kcal', item.ingredientDTO.kcal)" type="number" step="0.1" placeholder="0" />
+                        </div>
+                        
+                        <div class="edit-field-group">
+                          <label>카페인 (mg)</label>
+                          <input v-model.number="item.ingredientDTO.caffeine" @input="handleEditIngredientInput(getItemIndex(brand, idx), 'caffeine', item.ingredientDTO.caffeine)" type="number" step="0.1" placeholder="0" />
+                        </div>
+                        
+                        <div class="edit-field-group">
+                          <label>나트륨 (mg)</label>
+                          <input v-model.number="item.ingredientDTO.sodium" @input="handleEditIngredientInput(getItemIndex(brand, idx), 'sodium', item.ingredientDTO.sodium)" type="number" step="0.1" placeholder="0" />
+                        </div>
+                      </div>
+                      
+                      <div class="edit-field-row">
+                        <div class="edit-field-group">
+                          <label>당류 (g)</label>
+                          <input v-model.number="item.ingredientDTO.sugar" @input="handleEditIngredientInput(getItemIndex(brand, idx), 'sugar', item.ingredientDTO.sugar)" type="number" step="0.1" placeholder="0" />
+                        </div>
+                        
+                        <div class="edit-field-group">
+                          <label>포화지방 (g)</label>
+                          <input v-model.number="item.ingredientDTO.saturatedFat" @input="handleEditIngredientInput(getItemIndex(brand, idx), 'saturatedFat', item.ingredientDTO.saturatedFat)" type="number" step="0.1" placeholder="0" />
+                        </div>
+                        
+                        <div class="edit-field-group">
+                          <label>단백질 (g)</label>
+                          <input v-model.number="item.ingredientDTO.protein" @input="handleEditIngredientInput(getItemIndex(brand, idx), 'protein', item.ingredientDTO.protein)" type="number" step="0.1" placeholder="0" />
+                        </div>
+                      </div>
+                      
+                      <div class="edit-field-row">
+                        <div class="edit-field-group full-width">
+                          <label>알레르기 정보</label>
+                          <input v-model="item.ingredientDTO.allergicIngredients" @input="handleEditIngredientInput(getItemIndex(brand, idx), 'allergicIngredients', item.ingredientDTO.allergicIngredients)" placeholder="예: 우유, 견과류" />
+                        </div>
+                      </div>
+                    </div>
+                  </li>
+                </ul>
               </div>
             </div>
             
-            <div class="form-actions">
-              <button type="submit" class="save-btn">💾 저장 (미리보기)</button>
+            <div class="edit-form-actions">
+              <button type="submit" class="edit-save-btn">💾 저장 (미리보기)</button>
             </div>
           </form>
         </div>
@@ -736,7 +747,6 @@ async function startCrawling(brand) {
     console.log('크롤링 응답 상태:', response.status); // 디버깅용
 
     if (response.ok) {
-      const result = await response.text();
       window.showToast('success', '크롤링 완료', `${getBrandName(brand)} 메뉴가 업데이트되었습니다.`);
     } else {
       const errorData = await response.text();
@@ -836,11 +846,18 @@ async function onEditSearch() {
 }
 
 function toggleEditSelect(item) {
-  const idx = editSelectedItems.value.findIndex(sel => sel.brand === item.brand && sel.name === item.name);
-  if (idx === -1) {
-    editSelectedItems.value.push(item);
+  if (isMultiEditMode.value) {
+    // 다중 수정 모드: 기존 로직 유지
+    const idx = editSelectedItems.value.findIndex(sel => sel.brand === item.brand && sel.name === item.name);
+    if (idx === -1) {
+      editSelectedItems.value.push(item);
+    } else {
+      editSelectedItems.value.splice(idx, 1);
+    }
   } else {
-    editSelectedItems.value.splice(idx, 1);
+    // 단일 수정 모드: 선택 시 바로 수정 폼 열기
+    editSelectedItems.value = [item];
+    openEditForm();
   }
 }
 
@@ -913,15 +930,18 @@ async function saveEditForm() {
     });
 
     console.log('처리된 데이터:', processedData);
-    
-    // 수정된 데이터를 백엔드로 전송
-    const result = await coffeeApi.updateCoffees(processedData);
-    
+
     // 성공 메시지 표시
     window.showToast('success', '저장 완료', '메뉴가 성공적으로 수정되었습니다.');
     
-    // 수정 모드는 유지하고 폼 데이터만 초기화
-    editFormData.value = [];
+    // 단일 수정 모드인 경우 자동으로 검색 화면으로 돌아가기
+    if (!isMultiEditMode.value) {
+      editFormData.value = [];
+      editSelectedItems.value = [];
+    } else {
+      // 다중 수정 모드인 경우 폼 데이터만 초기화
+      editFormData.value = [];
+    }
     
   } catch (error) {
     console.error('저장 중 오류 발생:', error);
@@ -950,6 +970,56 @@ function toggleEditMode() {
   editSearchResults.value = [];
   editSelectedItems.value = [];
   editFormData.value = [];
+}
+
+// 수정 폼을 브랜드별로 그룹화
+const groupedEditFormData = computed(() => {
+  const groups = {};
+  editFormData.value.forEach(item => {
+    if (!groups[item.brand]) {
+      groups[item.brand] = [];
+    }
+    groups[item.brand].push(item);
+  });
+  return groups;
+});
+
+// 수정 검색 결과를 브랜드별로 그룹화
+const groupedEditSearchResults = computed(() => {
+  const groups = {};
+  editSearchResults.value.forEach(coffee => {
+    if (!groups[coffee.brand]) {
+      groups[coffee.brand] = { brand: coffee.brand, coffees: [] };
+    }
+    groups[coffee.brand].coffees.push(coffee);
+  });
+  return Object.values(groups);
+});
+
+function removeEditItem(brand, idx) {
+  // 해당 브랜드의 특정 인덱스 항목을 editFormData에서 제거
+  const brandItems = editFormData.value.filter(item => item.brand === brand);
+  const itemToRemove = brandItems[idx];
+  const globalIndex = editFormData.value.findIndex(item => 
+    item.brand === itemToRemove.brand && item.name === itemToRemove.name
+  );
+  
+  if (globalIndex !== -1) {
+    editFormData.value.splice(globalIndex, 1);
+  }
+}
+
+function getItemIndex(brand, idx) {
+  // 브랜드별 그룹에서의 인덱스를 전체 editFormData 인덱스로 변환
+  const brandItems = editFormData.value.filter(item => item.brand === brand);
+  const item = brandItems[idx];
+  return editFormData.value.findIndex(dataItem => 
+    dataItem.brand === item.brand && dataItem.name === item.name
+  );
+}
+
+function isEditSelected(coffee) {
+  return editSelectedItems.value.some(sel => sel.brand === coffee.brand && sel.name === coffee.name);
 }
 </script>
 
@@ -985,6 +1055,12 @@ function toggleEditMode() {
   gap: 1rem;
 }
 
+.edit-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .help-btn {
   background: #e0e6ed;
   border: none;
@@ -1014,7 +1090,7 @@ function toggleEditMode() {
 .edit-search-section {
   margin-bottom: 2rem;
   width: 100%;
-  max-width: 800px;
+  max-width: 1200px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1126,96 +1202,10 @@ function toggleEditMode() {
   justify-content: center;
 }
 
-.edit-results-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-  margin-bottom: 2rem;
-  width: 100%;
-  max-width: 1200px;
-  justify-items: center;
-}
-
-.edit-result-card {
-  background: white;
-  border: 2px solid #e0e6ed;
-  border-radius: 15px;
-  padding: 1.2rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.edit-result-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-}
-
-.edit-result-card.selected {
-  border-color: #667eea;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
-  box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-.brand-badge {
-  color: white;
-  padding: 0.3rem 0.8rem;
-  border-radius: 15px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
 .card-header input[type="checkbox"] {
   width: 18px;
   height: 18px;
   accent-color: #667eea;
-}
-
-.card-content h4 {
-  margin: 0 0 0.5rem 0;
-  color: #2c3e50;
-  font-size: 1.1rem;
-}
-
-.item-details {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.category {
-  color: #6c757d;
-  font-size: 0.9rem;
-  background: #f8f9fa;
-  padding: 0.2rem 0.5rem;
-  border-radius: 8px;
-  display: inline-block;
-  width: fit-content;
-}
-
-.nutrition-preview {
-  display: flex;
-  gap: 1rem;
-  font-size: 0.8rem;
-  color: #495057;
-}
-
-.nutrition-preview span {
-  background: #e9ecef;
-  padding: 0.2rem 0.5rem;
-  border-radius: 8px;
-}
-
-.edit-actions {
-  text-align: center;
 }
 
 .edit-proceed-btn {
@@ -1283,6 +1273,12 @@ function toggleEditMode() {
   font-size: 1.5rem;
 }
 
+.edit-form-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 .back-to-search-btn {
   background: #6c757d;
   color: white;
@@ -1308,67 +1304,10 @@ function toggleEditMode() {
   align-items: center;
 }
 
-.edit-form-item {
-  background: white;
-  border-radius: 15px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  border: 1px solid #e0e6ed;
-  width: 100%;
-}
-
-.form-item-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e0e6ed;
-}
-
-.item-info {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
 .item-info h4 {
   margin: 0;
   color: #2c3e50;
   font-size: 1.2rem;
-}
-
-.remove-item-btn {
-  background: #e74c3c;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-
-.remove-item-btn:hover {
-  background: #c0392b;
-  transform: scale(1.1);
-}
-
-.form-fields-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-}
-
-.field-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.field-group.full-width {
-  grid-column: 1 / -1;
 }
 
 .field-group label {
@@ -1389,31 +1328,6 @@ function toggleEditMode() {
   outline: none;
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.form-actions {
-  text-align: center;
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 2px solid #e0e6ed;
-}
-
-.save-btn {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: white;
-  border: none;
-  border-radius: 25px;
-  padding: 1rem 3rem;
-  font-size: 1.2rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
-}
-
-.save-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
 }
 
 .help-modal-overlay {
@@ -1483,15 +1397,7 @@ function toggleEditMode() {
     gap: 1rem;
     align-items: flex-start;
   }
-  
-  .edit-results-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .form-fields-grid {
-    grid-template-columns: 1fr;
-  }
-  
+
   .results-header {
     flex-direction: column;
     gap: 1rem;
