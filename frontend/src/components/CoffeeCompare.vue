@@ -218,23 +218,38 @@
             <button class="help-btn" @click="showHelp = true" title="수정 절차 안내">
               <span>❓</span>
             </button>
-            <h2>✏️ 메뉴 다중 수정</h2>
+            <h2>✏️ {{ isMultiEditMode ? '메뉴 다중 수정' : '메뉴 수정' }}</h2>
+          </div>
+          <div class="edit-mode-toggle">
+            <button 
+              @click="toggleEditMode" 
+              class="mode-toggle-btn"
+              :class="{ active: isMultiEditMode }"
+            >
+              {{ isMultiEditMode ? '단일 수정' : '다중 수정' }}
+            </button>
           </div>
         </div>
         <div v-if="showHelp" class="help-modal-overlay" @click.self="showHelp = false">
           <div class="help-modal">
-            <h3>📝 메뉴 다중 수정 절차 안내</h3>
-            <ol>
+            <h3>📝 {{ isMultiEditMode ? '메뉴 다중 수정' : '메뉴 수정' }} 절차 안내</h3>
+            <ol v-if="isMultiEditMode">
               <li><b>항목 검색 및 선택</b><br>수정할 커피/디저트 이름을 검색하고, 원하는 항목을 체크하세요.</li>
               <li><b>정보 수정</b><br>선택한 항목의 이름, 카테고리, 영양정보 등을 한 번에 수정할 수 있습니다.</li>
               <li><b>저장</b><br>모든 수정을 마쳤으면 <b>저장(미리보기)</b> 버튼을 눌러주세요.<br><span style="color:#888">(실제 저장은 추후 구현 예정)</span></li>
+            </ol>
+            <ol v-else>
+              <li><b>항목 검색</b><br>수정할 커피/디저트 이름을 검색하세요.</li>
+              <li><b>항목 선택</b><br>검색 결과에서 수정할 항목을 선택하세요.</li>
+              <li><b>정보 수정</b><br>선택한 항목의 정보를 수정하세요.</li>
+              <li><b>저장</b><br>수정을 마쳤으면 <b>저장(미리보기)</b> 버튼을 눌러주세요.</li>
             </ol>
             <button class="close-help-btn" @click="showHelp = false">닫기</button>
           </div>
         </div>
         
         <div v-if="editFormData.length === 0">
-          <!-- 검색 및 다중 선택 UI -->
+          <!-- 검색 및 선택 UI -->
           <div class="edit-search-section">
             <div class="search-input-group">
               <input 
@@ -317,7 +332,7 @@
         </div>
         
         <div v-else>
-          <!-- 다중 수정 폼 -->
+          <!-- 수정 폼 -->
           <div class="edit-form-header">
             <h3>📝 {{ editFormData.length }}개 항목 수정</h3>
             <button @click="editFormData = []" class="back-to-search-btn">← 검색으로 돌아가기</button>
@@ -441,6 +456,7 @@ const editSelectedItems = ref([]);
 const showEditModal = ref(false);
 const editFormData = ref([]);
 const showHelp = ref(false);
+const isMultiEditMode = ref(false);
 
 // 로그인 상태 확인
 const checkLoginStatus = () => {
@@ -925,6 +941,15 @@ async function saveEditForm() {
     
     window.showToast('error', '저장 실패', errorMessage);
   }
+}
+
+function toggleEditMode() {
+  isEditMode.value = true;
+  isMultiEditMode.value = !isMultiEditMode.value;
+  editSearchQuery.value = '';
+  editSearchResults.value = [];
+  editSelectedItems.value = [];
+  editFormData.value = [];
 }
 </script>
 
