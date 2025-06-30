@@ -199,7 +199,8 @@ start-dev.bat
 ## 📸 스크린샷
 
 ### 메인 화면
-![메인 화면](![image](https://github.com/user-attachments/assets/113ad32c-b47c-4e8a-b06a-36f19f8b5252))
+![메인 화면]![image](https://github.com/user-attachments/assets/2bfb8032-dcfb-4b51-95f5-efc224d8502b)
+
 *커피 검색 및 비교 메인 화면*
 
 ### 검색 결과
