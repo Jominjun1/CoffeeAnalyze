@@ -157,8 +157,8 @@
                 <img :src="coffee.imageUrl" :alt="`커피${index + 1} 이미지`" class="coffee-img" />
                 <p class="coffee-title">
                   <b>{{ coffee.brand }}</b><br>{{ coffee.name }}
-                  <span v-if="coffee.size" class="coffee-size">({{ coffee.size }})</span>
                 </p>
+                <p v-if="coffee.size" class="coffee-size">{{ coffee.size }}</p>
                 <ul class="info-list">
                   <li :class="getComparisonClass('kcal', coffee.ingredientDTO.kcal, index)">
                     <span>칼로리</span> <b>{{ coffee.ingredientDTO.kcal }}</b>
@@ -343,8 +343,8 @@
                 <h4 class="edit-brand-title" :style="{ backgroundColor: getBrandColor(brand) }">
                   {{ brand }} ({{ group.length }}개)
                 </h4>
-                <ul class="edit-brand-results">
-                  <li v-for="(item, idx) in group" :key="item.brand + item.name" class="edit-result-item">
+                <div class="edit-brand-results">
+                  <div v-for="(item, idx) in group" :key="item.brand + item.name" class="edit-result-item">
                     <div class="edit-item-content">
                       <span class="edit-coffee-name">{{ item.name }}</span>
                       <button type="button" @click="removeEditItem(brand, idx)" class="edit-remove-btn">×</button>
@@ -360,6 +360,11 @@
                         <div class="edit-field-group">
                           <label>카테고리</label>
                           <input v-model="item.note" @input="handleEditInput(getItemIndex(brand, idx), 'note', item.note)" placeholder="예: [음료], [푸드]" />
+                        </div>
+                        
+                        <div class="edit-field-group">
+                          <label>가격 (원)</label>
+                          <input v-model.number="item.price" @input="handleEditInput(getItemIndex(brand, idx), 'price', item.price)" type="number" step="100" placeholder="0" />
                         </div>
                       </div>
                       
@@ -404,8 +409,8 @@
                         </div>
                       </div>
                     </div>
-                  </li>
-                </ul>
+                  </div>
+                </div>
               </div>
             </div>
             
@@ -464,7 +469,6 @@ const isEditMode = ref(false);
 const editSearchQuery = ref('');
 const editSearchResults = ref([]);
 const editSelectedItems = ref([]);
-const showEditModal = ref(false);
 const editFormData = ref([]);
 const showHelp = ref(false);
 const isMultiEditMode = ref(false);
@@ -549,6 +553,8 @@ const totalResults = computed(() => {
 
 function onSearch() {
   if (searchQuery.value.trim()) {
+    // 검색할 때마다 선택된 항목들 초기화
+    selectedCoffees.value = [];
     searchCoffee(searchQuery.value);
   }
 }
@@ -824,7 +830,6 @@ function clearSearch() {
 // 수정 모드 관련 함수
 function enterEditMode() {
   isEditMode.value = true;
-  showEditModal.value = true;
   editSearchQuery.value = '';
   editSearchResults.value = [];
   editSelectedItems.value = [];
@@ -833,7 +838,6 @@ function enterEditMode() {
 
 function closeEditMode() {
   isEditMode.value = false;
-  showEditModal.value = false;
 }
 
 async function onEditSearch() {
@@ -972,30 +976,6 @@ function toggleEditMode() {
   editFormData.value = [];
 }
 
-// 수정 폼을 브랜드별로 그룹화
-const groupedEditFormData = computed(() => {
-  const groups = {};
-  editFormData.value.forEach(item => {
-    if (!groups[item.brand]) {
-      groups[item.brand] = [];
-    }
-    groups[item.brand].push(item);
-  });
-  return groups;
-});
-
-// 수정 검색 결과를 브랜드별로 그룹화
-const groupedEditSearchResults = computed(() => {
-  const groups = {};
-  editSearchResults.value.forEach(coffee => {
-    if (!groups[coffee.brand]) {
-      groups[coffee.brand] = { brand: coffee.brand, coffees: [] };
-    }
-    groups[coffee.brand].coffees.push(coffee);
-  });
-  return Object.values(groups);
-});
-
 function removeEditItem(brand, idx) {
   // 해당 브랜드의 특정 인덱스 항목을 editFormData에서 제거
   const brandItems = editFormData.value.filter(item => item.brand === brand);
@@ -1009,6 +989,34 @@ function removeEditItem(brand, idx) {
   }
 }
 
+function isEditSelected(coffee) {
+  return editSelectedItems.value.some(sel => sel.brand === coffee.brand && sel.name === coffee.name);
+}
+
+// 수정 검색 결과를 브랜드별로 그룹화
+const groupedEditSearchResults = computed(() => {
+  const groups = {};
+  editSearchResults.value.forEach(coffee => {
+    if (!groups[coffee.brand]) {
+      groups[coffee.brand] = { brand: coffee.brand, coffees: [] };
+    }
+    groups[coffee.brand].coffees.push(coffee);
+  });
+  return Object.values(groups);
+});
+
+// 수정 폼을 브랜드별로 그룹화
+const groupedEditFormData = computed(() => {
+  const groups = {};
+  editFormData.value.forEach(item => {
+    if (!groups[item.brand]) {
+      groups[item.brand] = [];
+    }
+    groups[item.brand].push(item);
+  });
+  return groups;
+});
+
 function getItemIndex(brand, idx) {
   // 브랜드별 그룹에서의 인덱스를 전체 editFormData 인덱스로 변환
   const brandItems = editFormData.value.filter(item => item.brand === brand);
@@ -1016,10 +1024,6 @@ function getItemIndex(brand, idx) {
   return editFormData.value.findIndex(dataItem => 
     dataItem.brand === item.brand && dataItem.name === item.name
   );
-}
-
-function isEditSelected(coffee) {
-  return editSelectedItems.value.some(sel => sel.brand === coffee.brand && sel.name === coffee.name);
 }
 </script>
 
