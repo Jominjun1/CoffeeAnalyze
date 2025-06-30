@@ -5,31 +5,59 @@
       <button v-if="!isAdminLoggedIn" @click="showLoginModal" class="login-btn">🔐 관리자 로그인</button>
     </div>
     
-    <!-- 관리자 메뉴 업데이트 버튼 (로그인 후 표시) -->
-    <div v-if="isAdminLoggedIn" class="admin-section">
-      <button @click="toggleUpdateMenu" :disabled="isCrawling" class="update-btn">
-        {{ isCrawling ? '🔄 크롤링 중...' : '📊 메뉴 업데이트' }}
+    <!-- 통합 관리자 메뉴 (로그인 후 표시) -->
+    <div v-if="isAdminLoggedIn" class="admin-menu">
+      <button @click="toggleAdminMenu" class="menu-btn">
+        <span class="menu-icon">☰</span>
+        <span class="menu-text">메뉴</span>
       </button>
-      <div v-if="showUpdateMenu" class="update-submenu">
-        <button @click="startCrawling('mega_coffee')" :disabled="isCrawling" class="submenu-btn mega">
-          메가커피
-        </button>
-        <button @click="startCrawling('paiks')" :disabled="isCrawling" class="submenu-btn paiks">
-          빽다방
-        </button>
-        <button @click="startCrawling('starBucks')" :disabled="isCrawling" class="submenu-btn starbucks">
-          스타벅스
-        </button>
-        <button @click="startCrawling('ediya')" :disabled="isCrawling" class="submenu-btn ediya">
-          이디야
-        </button>
-        <button @click="startCrawling('compose')" :disabled="isCrawling" class="submenu-btn compose">
-          컴포즈커피
-        </button>
+      <div v-if="showAdminMenu" class="admin-dropdown">
+        <!-- 메뉴 업데이트 섹션 -->
+        <div class="menu-section">
+          <h4 class="menu-section-title">📊 메뉴 업데이트</h4>
+          <div class="menu-items">
+            <button @click="startCrawling('mega_coffee')" :disabled="isCrawling" class="menu-item mega">
+              <span class="menu-item-icon">☕</span>
+              <span class="menu-item-text">메가커피</span>
+            </button>
+            <button @click="startCrawling('paiks')" :disabled="isCrawling" class="menu-item paiks">
+              <span class="menu-item-icon">☕</span>
+              <span class="menu-item-text">빽다방</span>
+            </button>
+            <button @click="startCrawling('starBucks')" :disabled="isCrawling" class="menu-item starbucks">
+              <span class="menu-item-icon">☕</span>
+              <span class="menu-item-text">스타벅스</span>
+            </button>
+            <button @click="startCrawling('ediya')" :disabled="isCrawling" class="menu-item ediya">
+              <span class="menu-item-icon">☕</span>
+              <span class="menu-item-text">이디야</span>
+            </button>
+            <button @click="startCrawling('compose')" :disabled="isCrawling" class="menu-item compose">
+              <span class="menu-item-icon">☕</span>
+              <span class="menu-item-text">컴포즈커피</span>
+            </button>
+          </div>
+        </div>
+        
+        <!-- 관리 기능 섹션 -->
+        <div class="menu-section">
+          <h4 class="menu-section-title">⚙️ 관리 기능</h4>
+          <div class="menu-items">
+            <button v-if="!isEditMode" @click="enterEditMode" class="menu-item edit">
+              <span class="menu-item-icon">✏️</span>
+              <span class="menu-item-text">수정하기</span>
+            </button>
+            <button v-else @click="closeEditMode" class="menu-item edit">
+              <span class="menu-item-icon">⏹</span>
+              <span class="menu-item-text">수정모드 종료</span>
+            </button>
+            <button @click="logout" class="menu-item logout">
+              <span class="menu-item-icon">🚪</span>
+              <span class="menu-item-text">로그아웃</span>
+            </button>
+          </div>
+        </div>
       </div>
-      <button v-if="!isEditMode" @click="enterEditMode" class="edit-btn">✏️ 수정하기</button>
-      <button v-else @click="closeEditMode" class="edit-btn">⏹ 수정모드 종료</button>
-      <button @click="logout" class="logout-btn">🚪 로그아웃</button>
     </div>
     
     <!-- 검색/비교 화면: 수정 모드가 아닐 때만 -->
@@ -48,7 +76,7 @@
             <option value="음식">음식</option>
           </select>
           <button @click="onSearch" :disabled="isLoading" class="search-btn">검색</button>
-          <button v-if="searchQuery || selectedCategory" @click="clearSearch" class="clear-btn">초기화</button>
+          <button v-if="groupedResults.length > 0" @click="clearSearch" class="clear-btn">초기화</button>
         </div>
       </div>
 
@@ -62,7 +90,9 @@
       <div v-if="groupedResults.length > 0" class="results-section">
         <div class="results-header">
           <h3>검색 결과 ({{ totalResults }}개)</h3>
-          <button v-if="selectedCoffees.length > 1" @click="showComparisonModal" class="compare-btn">📊 비교 결과 보기</button>
+          <button v-if="selectedCoffees.length > 0" @click="showComparisonModal" class="compare-btn">
+            {{ selectedCoffees.length === 1 ? '📊 상세 정보 보기' : '📊 비교 결과 보기' }}
+          </button>
         </div>
         
         <div class="brand-sections">
@@ -73,7 +103,12 @@
             <ul class="brand-results">
               <li v-for="coffee in brandGroup.coffees" :key="coffee.brand + coffee.name" class="result-item">
                 <span class="coffee-name">{{ coffee.name }}</span>
-                <button @click="selectCoffee(coffee)" class="select-btn" :disabled="!canSelectMore || isAlreadySelected(coffee)">
+                <button 
+                  @click="toggleCoffeeSelection(coffee)" 
+                  class="select-btn" 
+                  :class="{ selected: isAlreadySelected(coffee) }"
+                  :disabled="!canSelectMore && !isAlreadySelected(coffee)"
+                >
                   {{ isAlreadySelected(coffee) ? '선택됨' : '선택' }}
                 </button>
               </li>
@@ -84,7 +119,7 @@
 
       <!-- 선택된 커피 표시 -->
       <div v-if="selectedCoffees.length > 0" class="selected-section">
-        <h3>선택된 커피 ({{ selectedCoffees.length }}/4)</h3>
+        <h3>{{ selectedCoffees.length === 1 ? '선택된 커피' : `선택된 커피 (${selectedCoffees.length}/4)` }}</h3>
         <div class="selected-list">
           <div v-for="(coffee, index) in selectedCoffees" :key="index" class="selected-item">
             <span class="brand-chip" :style="{ backgroundColor: getBrandColor(coffee.brand) }">{{ coffee.brand }}</span>
@@ -95,15 +130,17 @@
       </div>
 
       <!-- 비교 결과 -->
-      <div class="comparison-section" v-if="selectedCoffees.length > 1">
-        <button @click="resetComparison" class="reset-btn">비교 초기화</button>
+      <div class="comparison-section" v-if="selectedCoffees.length > 0">
+        <button @click="resetComparison" class="reset-btn">
+          {{ selectedCoffees.length === 1 ? '선택 해제' : '비교 초기화' }}
+        </button>
       </div>
 
       <!-- 비교 결과 모달 -->
       <div v-if="showComparison" class="modal-overlay" @click="closeComparisonModal">
         <div class="comparison-modal" @click.stop>
           <div class="modal-header">
-            <h3>☕ 커피 비교 결과</h3>
+            <h3>{{ selectedCoffees.length === 1 ? '☕ 커피 상세 정보' : '☕ 커피 비교 결과' }}</h3>
             <button @click="closeComparisonModal" class="close-btn">×</button>
           </div>
           <div class="compare-table" :class="`compare-${selectedCoffees.length}`">
@@ -113,6 +150,7 @@
                 <img :src="coffee.imageUrl" :alt="`커피${index + 1} 이미지`" class="coffee-img" />
                 <p class="coffee-title">
                   <b>{{ coffee.brand }}</b><br>{{ coffee.name }}
+                  <span v-if="coffee.size" class="coffee-size">({{ coffee.size }})</span>
                 </p>
                 <ul class="info-list">
                   <li :class="getComparisonClass('kcal', coffee.ingredientDTO.kcal, index)">
@@ -390,7 +428,7 @@ const loginForm = ref({
 });
 
 // 서브메뉴 상태
-const showUpdateMenu = ref(false);
+const showAdminMenu = ref(false);
 
 // 카테고리 필터 상태
 const selectedCategory = ref('');
@@ -406,7 +444,7 @@ const showHelp = ref(false);
 
 // 로그인 상태 확인
 const checkLoginStatus = () => {
-  const token = localStorage.getItem('adminToken');
+  const token = sessionStorage.getItem('adminToken');
   if (token) {
     coffeeStore.setAdminLoggedIn(true);
   }
@@ -443,6 +481,32 @@ const groupedResults = computed(() => {
       groups[coffee.brand] = [];
     }
     groups[coffee.brand].push(coffee);
+  });
+  
+  // 각 브랜드 내에서 정확히 일치하는 항목을 맨 위로 정렬
+  Object.keys(groups).forEach(brand => {
+    groups[brand].sort((a, b) => {
+      const query = searchQuery.value.toLowerCase();
+      const aName = a.name.toLowerCase();
+      const bName = b.name.toLowerCase();
+      
+      // 정확히 일치하는 항목이 맨 위로
+      const aExact = aName === query;
+      const bExact = bName === query;
+      
+      if (aExact && !bExact) return -1;
+      if (!aExact && bExact) return 1;
+      
+      // 그 다음에는 검색어로 시작하는 항목
+      const aStartsWith = aName.startsWith(query);
+      const bStartsWith = bName.startsWith(query);
+      
+      if (aStartsWith && !bStartsWith) return -1;
+      if (!aStartsWith && bStartsWith) return 1;
+      
+      // 마지막에는 알파벳 순으로 정렬
+      return aName.localeCompare(bName);
+    });
   });
   
   return Object.keys(groups).map(brand => ({
@@ -490,7 +554,7 @@ async function login() {
 
     if (response.ok) {
       const data = await response.json();
-      localStorage.setItem('adminToken', data.token);
+      sessionStorage.setItem('adminToken', data.token);
       coffeeStore.setAdminLoggedIn(true);
       showLogin.value = false;
       loginForm.value = { admin_id: '', admin_pw: '' };
@@ -551,6 +615,19 @@ function isAlreadySelected(coffee) {
   return selectedCoffees.value.find(c => c.brand === coffee.brand && c.name === coffee.name);
 }
 
+function toggleCoffeeSelection(coffee) {
+  if (isAlreadySelected(coffee)) {
+    // 이미 선택된 경우 선택 해제
+    const index = selectedCoffees.value.findIndex(c => c.brand === coffee.brand && c.name === coffee.name);
+    removeCoffee(index);
+  } else {
+    // 선택되지 않은 경우 선택 추가
+    if (selectedCoffees.value.length < 4) {
+      selectCoffee(coffee);
+    }
+  }
+}
+
 function getBrandColor(brand) {
   const colors = {
     '스타벅스': '#006241',
@@ -598,35 +675,56 @@ function getComparisonClass(type, value, currentIndex) {
 }
 
 // 서브메뉴 토글 함수
-function toggleUpdateMenu() {
-  showUpdateMenu.value = !showUpdateMenu.value;
+function toggleAdminMenu() {
+  showAdminMenu.value = !showAdminMenu.value;
 }
+
+// 메뉴 외부 클릭 시 닫기
+function closeAdminMenu() {
+  showAdminMenu.value = false;
+}
+
+// 컴포넌트 마운트 시 외부 클릭 이벤트 리스너 추가
+onMounted(() => {
+  document.addEventListener('click', (event) => {
+    const adminMenu = document.querySelector('.admin-menu');
+    if (adminMenu && !adminMenu.contains(event.target)) {
+      closeAdminMenu();
+    }
+  });
+});
 
 // 브랜드별 크롤링 함수
 async function startCrawling(brand) {
-  const token = localStorage.getItem('adminToken');
+  const token = sessionStorage.getItem('adminToken');
+  console.log('크롤링 토큰:', token); // 디버깅용
+  
   if (!token) {
     window.showToast('warning', '로그인 필요', '관리자 로그인이 필요합니다.');
     return;
   }
 
   coffeeStore.setCrawling(true);
-  showUpdateMenu.value = false;
+  showAdminMenu.value = false;
 
   try {
-    const response = await fetch(`http://localhost:8080/admin/crawl/${brand}`, {
-      method: 'POST',
+    console.log('크롤링 요청 URL:', `http://localhost:8080/craw/${brand}`); // 디버깅용
+    const response = await fetch(`http://localhost:8080/craw/${brand}`, {
+      method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       }
     });
 
+    console.log('크롤링 응답 상태:', response.status); // 디버깅용
+
     if (response.ok) {
       const result = await response.text();
       window.showToast('success', '크롤링 완료', `${getBrandName(brand)} 메뉴가 업데이트되었습니다.`);
     } else {
       const errorData = await response.text();
+      console.log('크롤링 에러 응답:', errorData); // 디버깅용
       window.showToast('error', '크롤링 실패', `${getBrandName(brand)}: ${errorData}`);
     }
   } catch (error) {
@@ -650,7 +748,7 @@ function getBrandName(brand) {
 
 // 로그아웃 함수
 async function logout() {
-  const token = localStorage.getItem('adminToken');
+  const token = sessionStorage.getItem('adminToken');
   
   try {
     // 백엔드에 로그아웃 요청
@@ -666,12 +764,12 @@ async function logout() {
   } catch (error) {
     console.error('로그아웃 요청 오류:', error);
   } finally {
-    // 로컬 스토리지에서 토큰 제거
-    localStorage.removeItem('adminToken');
+    // 세션 스토리지에서 토큰 제거
+    sessionStorage.removeItem('adminToken');
     // 로그인 상태 업데이트
     coffeeStore.setAdminLoggedIn(false);
     // 서브메뉴 닫기
-    showUpdateMenu.value = false;
+    showAdminMenu.value = false;
     
     window.showToast('info', '로그아웃', '로그아웃되었습니다.');
   }
