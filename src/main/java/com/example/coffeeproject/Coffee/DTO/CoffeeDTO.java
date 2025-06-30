@@ -13,6 +13,7 @@ public class CoffeeDTO {
     private String note;
     private String imageUrl;
     private String size;
+    private double price;
     private IngredientDTO ingredientDTO;
 
 }
