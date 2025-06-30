@@ -17,7 +17,7 @@ public class EDIYACoffee {
     private int ediya_id;
 
     private double ounce; // 중량 1oz=29.5ml
-    private int price; // 가격
+    private double price; // 가격
     private String name; // 이름
     private String eng_name; // 영어 이름
     private String note; // 비고
