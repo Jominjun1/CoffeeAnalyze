@@ -119,6 +119,21 @@ CoffeeAnalyze/
     └── application.yml     # 애플리케이션 설정
 ```
 
+## 🚀 배포 방법
+
+```bash
+
+--프론트 엔드 폴더로 이동--
+npm run build
+
+--백엔드에 Vue 정적 파일 복사--
+cp -r frontend/dist/* src/main/resources/static
+
+--백엔드 재빌드 후 JAR파일 생성
+./gradlew build
+
+```
+
 ## 🚀 설치 및 실행
 
 ### Prerequisites
