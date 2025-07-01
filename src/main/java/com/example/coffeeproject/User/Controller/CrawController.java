@@ -85,6 +85,22 @@ public class CrawController {
             return ResponseEntity.internalServerError().body("오류 :" + e.getMessage());
         }
     }
+    // 전체 커피 메뉴 크롤링
+    @GetMapping("/allCoffee")
+    public ResponseEntity<String> crawAllCoffee(HttpServletRequest request){
+        if (!validateToken(request)) {
+            return ResponseEntity.status(401).body("인증 필요");
+        }try{
+            coffeeService.crawlEdiya();
+            coffeeService.crawlCompose();
+            coffeeService.crawlStarBucks();
+            coffeeService.crawlMegaCoffee();
+            coffeeService.crawlPaiksCoffee();
+            return ResponseEntity.ok("성공");
+        }catch(Exception e){
+            return ResponseEntity.internalServerError().body("오류 :" + e.getMessage());
+        }
+    }
 
     // JWT 토큰 검증
     private boolean validateToken(HttpServletRequest request) {

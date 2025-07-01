@@ -398,8 +398,12 @@ public class CoffeeService {
                         WebElement moreBtn = webDriver.findElement(By.cssSelector("a.line_btn"));
                         if (moreBtn.isDisplayed()) {
                             ((JavascriptExecutor) webDriver).executeScript("arguments[0].click();", moreBtn);
-                        } else {break;}
-                    } catch (NoSuchElementException e) {break;}
+                        } else {
+                            break;
+                        }
+                    } catch (NoSuchElementException e) {
+                        break;
+                    }
                 }
 
                 wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.cssSelector("div.con_align > ul > li > a")));
