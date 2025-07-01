@@ -214,23 +214,38 @@ start-dev.bat
 ## 📸 스크린샷
 
 ### 메인 화면
-![메인 화면]![image](https://github.com/user-attachments/assets/2bfb8032-dcfb-4b51-95f5-efc224d8502b)
+![메인 화면]
+
+![image](https://github.com/user-attachments/assets/2bfb8032-dcfb-4b51-95f5-efc224d8502b)
+
 *커피 검색 및 비교 메인 화면*
 
 ### 검색 결과
-![검색 결과]![image](https://github.com/user-attachments/assets/f78b58b1-3f51-4bbf-8452-4d2705bd8f98)
+![검색 결과]
+
+![image](https://github.com/user-attachments/assets/f78b58b1-3f51-4bbf-8452-4d2705bd8f98)
+
 *커피 검색 결과 및 선택 화면*
 
 ### 비교 결과 모달
-![비교 결과]![image](https://github.com/user-attachments/assets/a0b235f7-03c6-4ce9-9a7c-3e3acb1c0bd0)
+![비교 결과]
+
+![image](https://github.com/user-attachments/assets/a0b235f7-03c6-4ce9-9a7c-3e3acb1c0bd0)
+
 *커피 영양 정보 비교 모달*
 
 ### 관리자 로그인
-![관리자 로그인]![image](https://github.com/user-attachments/assets/986f7be8-bcd3-499c-ad48-b1ea5e52ed88)
+![관리자 로그인]
+
+![image](https://github.com/user-attachments/assets/986f7be8-bcd3-499c-ad48-b1ea5e52ed88)
+
 *관리자 로그인 화면*
 
 ### 관리자 메뉴
-![관리자 메뉴]![image](https://github.com/user-attachments/assets/537d92cd-e9ec-43e3-98da-26bc2673c517)
+![관리자 메뉴]
+
+![image](https://github.com/user-attachments/assets/537d92cd-e9ec-43e3-98da-26bc2673c517)
+
 *통합 관리자 메뉴 드롭다운*
 
 
