@@ -15,5 +15,4 @@ public class CoffeeDTO {
     private String size;
     private double price;
     private IngredientDTO ingredientDTO;
-
 }
