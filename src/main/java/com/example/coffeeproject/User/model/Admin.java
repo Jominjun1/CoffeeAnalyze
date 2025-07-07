@@ -29,6 +29,7 @@ public class Admin {
     private String admin_pw; // 비밀번호
 
     private String name; // 이름
+
     private String phone; // 핸드폰
     private String address; // 주소
     private String age; // 나이

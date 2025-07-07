@@ -18,17 +18,15 @@ import java.util.Optional;
 @RestController
 @CrossOrigin(origins = "*")
 public class AdminController {
-    private final AdminService adminService;
-    @Autowired
-    private JwtUtil jwtUtil;
-    @Autowired
-    private AdminRepository adminRepository;
-    @Autowired
-    private PasswordEncryptor passwordEncryptor;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @Autowired
+    private final AdminService adminService;
+    private JwtUtil jwtUtil;
+    private AdminRepository adminRepository;
+    private PasswordEncryptor passwordEncryptor;
+    private PasswordEncoder passwordEncoder;
+
+
     public AdminController(AdminService adminService) {
         this.adminService = adminService;
     }

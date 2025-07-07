@@ -13,12 +13,10 @@ import jakarta.servlet.http.HttpServletRequest;
 @CrossOrigin(origins = "*")
 public class CrawController {
 
-    private final CoffeeService coffeeService;
-    
     @Autowired
+    private final CoffeeService coffeeService;
     private JwtUtil jwtUtil;
 
-    @Autowired
     public CrawController(CoffeeService coffeeService) {
         this.coffeeService = coffeeService;
     }
